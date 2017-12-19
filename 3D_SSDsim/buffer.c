@@ -1226,7 +1226,6 @@ Status allocate_location(struct ssd_info * ssd, struct sub_request *sub_req, uns
 	plane_num = ssd->parameter->plane_die;
 
 
-	/*
 	//判断是否会产生更新写操作，更新写操作要先读后写
 	if (ssd->dram->map->map_entry[sub_req->lpn].state != 0)
 	{
@@ -1297,7 +1296,7 @@ Status allocate_location(struct ssd_info * ssd, struct sub_request *sub_req, uns
 	update->complete_time = ssd->current_time + 1000;
 	}
 	}
-	}*/
+	}
 
 	//按照不同的分配策略，进行分配，
 	if (ssd->parameter->allocation_scheme == DYNAMIC_ALLOCATION)
