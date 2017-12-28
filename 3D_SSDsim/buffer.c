@@ -317,7 +317,7 @@ struct ssd_info * insert2buffer(struct ssd_info *ssd, unsigned int lpn, int stat
 						ssd->dram->buffer->buffer_tail = buffer_node->LRU_link_pre;
 						buffer_node->LRU_link_pre->LRU_link_next = NULL;
 					}
-					else if (buffer_node != ssd->dram->buffer->buffer_head)
+					else
 					{
 						buffer_node->LRU_link_pre->LRU_link_next = buffer_node->LRU_link_next;
 						buffer_node->LRU_link_next->LRU_link_pre = buffer_node->LRU_link_pre;
