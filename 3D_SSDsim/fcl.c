@@ -1184,6 +1184,7 @@ Status services_2_write(struct ssd_info * ssd, unsigned int channel)
 				{
 					if ((ssd->channel_head[channel].chip_head[chip_token].current_state == CHIP_IDLE) || ((ssd->channel_head[channel].chip_head[chip_token].next_state == CHIP_IDLE) && (ssd->channel_head[channel].chip_head[chip_token].next_state_predict_time <= ssd->current_time)))
 					{
+						//如果挂起的chip就跳过
 						if(ssd->channel_head[channel].chip_head[chip_token].gc_signal != SIG_NORMAL)
 							continue;
 						if (dynamic_advanced_process(ssd, channel, chip_token) == NULL)
