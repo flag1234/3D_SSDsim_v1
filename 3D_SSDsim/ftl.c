@@ -1414,6 +1414,16 @@ Status  find_active_block(struct ssd_info *ssd, unsigned int channel, unsigned i
 	//last_write_page=ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].blk_head[active_block].free_page_num;
 	while ((free_page_num == 0) && (count<ssd->parameter->block_plane))
 	{
+		if(ssd->channel_head[channel].chip_head[chip].gc_signal != SIG_NORMAL){
+			if(ssd->channel_head[channel].chip_head[chip].suspend_location->die == die)
+				for(int i = 0; i < ssd->parameter->plane_die; i++){
+					if(ssd->channel_head[channel].chip_head[chip].suspend_location->plane[i] == plane &&
+					   ssd->channel_head[channel].chip_head[chip].suspend_location->block[i] == active_block)
+						continue;
+				}
+				
+		}
+							
 		active_block = (active_block + 1) % ssd->parameter->block_plane;
 		free_page_num = ssd->channel_head[channel].chip_head[chip].die_head[die].plane_head[plane].blk_head[active_block].free_page_num;
 		count++;

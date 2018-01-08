@@ -122,7 +122,7 @@ char *result_file_size[3][15] =
 
 };*/
 char *parameters_file = "page.parameters";
-char *trace_file = "example.ascii";
+char *trace_file = "usr2.ascii";
 char *result_file_ex = "example_ex.dat";
 char *result_file_statistic = "example.dat";
 

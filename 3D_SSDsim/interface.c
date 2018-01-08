@@ -279,5 +279,7 @@ __int64 find_nearest_event(struct ssd_info *ssd)
 	*A/B/C all not meet£¬return 0x7fffffffffffffff,means channel and chip is idle
 	*****************************************************************************************************/
 	time = (time1>time2) ? time2 : time1;
+	if (time == 2966636776340)
+		printf("time end\n");
 	return time;
 }
