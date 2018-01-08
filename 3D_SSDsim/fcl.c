@@ -487,7 +487,7 @@ Status services_2_r_wait(struct ssd_info * ssd, unsigned int channel)
 			{
 				//判断找到的读子请求里面有没有读挂起的块
 				for(int bn = 0; bn < ssd->parameter->plane_die * PAGE_INDEX; bn++){
-					if(sub_place[bn]->location.block== ssd->channel_head[channel].chip_head[chip].suspend_location.block){
+					if(sub_place[bn]->location->block== ssd->channel_head[channel].chip_head[chip].suspend_location->block){
 						suspend_flag = 1;
 						break;
 					}

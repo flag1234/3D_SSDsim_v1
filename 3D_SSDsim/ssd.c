@@ -43,6 +43,7 @@ Zuo Lu			2017/10/11		  1.9			Support dynamic OSPA allocation strategy				6173766
 #include "fcl.h"
 
 int secno_num_per_page, secno_num_sub_page;
+/*
 //parameters路径名
 char *parameters_file[3] =
 { "page_TDA.parameters",
@@ -119,7 +120,11 @@ char *result_file_size[3][15] =
 	"ts0_TSA_size.dat", "usr0_TSA_size.dat", "vps_TSA_size.dat", "w1_TSA_size.dat", "w2_TSA_size.dat", "wdev0_TSA_size.dat"
 	}
 
-};
+};*/
+char *parameters_file = "page.parameters";
+char *trace_file = "example.ascii";
+char *result_file_ex = "example_ex.dat";
+char *result_file_statistic = "example.dat";
 
 
 /********************************************************************************************************************************
@@ -141,7 +146,7 @@ void main()
 	//for (j = 0; j < 1; j++)
 	//{
 		j = 1;
-		for (i = 0; i < 15; i++)
+		for (i = 0; i < 1; i++)
 		{
 			//j = 1;
 			//i = 1;
@@ -151,15 +156,18 @@ void main()
 			memset(ssd, 0, sizeof(struct ssd_info));
 
 			//输入配置文件参数
-			strcpy_s(ssd->parameterfilename, 50, parameters_file[j]);
-			//strcpy_s(ssd->parameterfilename, 50, "page.parameters");
+			//strcpy_s(ssd->parameterfilename, 50, parameters_file[j]);
+			strcpy_s(ssd->parameterfilename, 50, "page.parameters");
 
 			//输入trace文件参数，输出文件名
-			strcpy_s(ssd->tracefilename, 50, trace_file[i]);
+			/*strcpy_s(ssd->tracefilename, 50, trace_file[i]);
 			strcpy_s(ssd->outputfilename, 50, result_file_ex[j][i]);
 			strcpy_s(ssd->statisticfilename, 50, result_file_statistic[j][i]);
 //			strcpy_s(ssd->statistic_time_filename, 50, result_file_die[j][i]);
-//			strcpy_s(ssd->statistic_size_filename, 50, result_file_size[j][i]);
+//			strcpy_s(ssd->statistic_size_filename, 50, result_file_size[j][i]);*/
+			strcpy_s(ssd->tracefilename, 50, trace_file);
+			strcpy_s(ssd->outputfilename, 50, result_file_ex);
+			strcpy_s(ssd->statisticfilename, 50, result_file_statistic);
 
 			printf("tracefile:%s begin simulate-------------------------\n", ssd->tracefilename);
 			//getchar();
