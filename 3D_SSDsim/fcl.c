@@ -395,7 +395,7 @@ Status services_2_r_wait(struct ssd_info * ssd, unsigned int channel)
 			{
 				if (ssd->current_time >= ssd->channel_head[channel].chip_head[chip].erase_cmplt_time)
 				{
-					if (ssd->channel_head[channel].chip_head[chip].gc_signal == SIG_ERASE_SUSPEND)
+					if (ssd->channel_head[channel].chip_head[chip].gc_signal == SIG_ERASE_RESUME || ssd->channel_head[channel].chip_head[chip].gc_signal == SIG_ERASE_SUSPEND)
 					{
 						//将剩余的擦除请求，推动chip的时间线
 						ssd->channel_head[channel].chip_head[chip].current_state = CHIP_ERASE_BUSY;
@@ -864,16 +864,18 @@ Status go_one_step(struct ssd_info * ssd, struct sub_request ** subs, unsigned i
 			//判断是否有suspend read
 			if (ssd->channel_head[location->channel].chip_head[location->chip].gc_signal == SIG_ERASE_SUSPEND)
 			{
-				//ssd->channel_head[channel].chip_head[chip].gc_signal == SIG_ERASE_WAIT;
+				
 				//加上请求挂起恢复的时间
-				ssd->channel_head[location->channel].chip_head[location->chip].next_state_predict_time += ssd->parameter->time_characteristics.tERSL;
+				//ssd->channel_head[location->channel].chip_head[location->chip].next_state_predict_time += ssd->parameter->time_characteristics.tERSL;
 					
 				if (ssd->channel_head[location->channel].chip_head[location->chip].next_state_predict_time >= ssd->channel_head[location->channel].chip_head[location->chip].erase_cmplt_time)
 				{
 					ssd->channel_head[location->channel].chip_head[location->chip].gc_signal = SIG_ERASE_RESUME;
+					ssd->resume_count++;
 				}
-				else
+				else{
 					ssd->channel_head[location->channel].chip_head[location->chip].gc_signal = SIG_ERASE_WAIT;
+				}
 			}
 			
 			break;
@@ -1035,7 +1037,7 @@ Status go_one_step(struct ssd_info * ssd, struct sub_request ** subs, unsigned i
 					//串行传输
 					if (i == 0){//顺序是先恢复，加上延时，再串行传输
 						if(ssd->channel_head[location->channel].chip_head[location->chip].gc_signal == SIG_ERASE_SUSPEND)
-							subs[i]->current_time = ssd->current_time + ssd->parameter->time_characteristics.tERSL;
+							subs[i]->current_time = ssd->current_time; // + ssd->parameter->time_characteristics.tERSL;
 						else
 							subs[i]->current_time = ssd->current_time;
 					}
@@ -1077,6 +1079,7 @@ Status go_one_step(struct ssd_info * ssd, struct sub_request ** subs, unsigned i
 						if (subs[i]->next_state_predict_time >= ssd->channel_head[location->channel].chip_head[location->chip].erase_cmplt_time)
 						{
 								ssd->channel_head[location->channel].chip_head[location->chip].gc_signal = SIG_ERASE_RESUME;
+								ssd->resume_count++;
 						}
 						else
 							ssd->channel_head[location->channel].chip_head[location->chip].gc_signal = SIG_ERASE_WAIT;
@@ -1186,10 +1189,14 @@ Status services_2_write(struct ssd_info * ssd, unsigned int channel)
 					if ((ssd->channel_head[channel].chip_head[chip_token].current_state == CHIP_IDLE) || ((ssd->channel_head[channel].chip_head[chip_token].next_state == CHIP_IDLE) && (ssd->channel_head[channel].chip_head[chip_token].next_state_predict_time <= ssd->current_time)))
 					{
 						//如果挂起的chip就跳过-》如果要写的是当前挂起的块
-						if (dynamic_advanced_process(ssd, channel, chip_token) == NULL)
+						if (dynamic_advanced_process(ssd, channel, chip_token) == NULL){
 							ssd->channel_head[channel].channel_busy_flag = 0;
-						else   
+						}
+						else{
 							ssd->channel_head[channel].channel_busy_flag = 1;
+							if(ssd->channel_head[channel].chip_head[chip_token].gc_signal != SIG_NORMAL)
+								ssd->suspend_write_count++;
+						}
 					}
 					ssd->channel_head[channel].token = (ssd->channel_head[channel].token + 1) % ssd->parameter->chip_channel[channel];  //The current chip is busy and jumps to the next chip execution
 				}

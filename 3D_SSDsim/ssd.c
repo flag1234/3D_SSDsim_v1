@@ -801,6 +801,7 @@ void statistic_output(struct ssd_info *ssd)
 	fprintf(ssd->outputfile, "erase suspend count : %13d\n", ssd->suspend_count);
 	fprintf(ssd->outputfile, "erase resume  count : %13d\n", ssd->resume_count);
 	fprintf(ssd->outputfile, "suspend read  count : %13d\n", ssd->suspend_read_count);
+	fprintf(ssd->outputfile, "suspend write  count : %13d\n", ssd->suspend_write_count);
 	fprintf(ssd->outputfile, "\n");
 
 	fprintf(ssd->outputfile, "update sub request count : %13d\n", ssd->update_sub_request);
@@ -829,6 +830,7 @@ void statistic_output(struct ssd_info *ssd)
 	fprintf(ssd->outputfile, "erase suspend count : %13d\n", ssd->suspend_count);
 	fprintf(ssd->outputfile, "erase resume  count : %13d\n", ssd->resume_count);
 	fprintf(ssd->outputfile, "suspend read  count : %13d\n", ssd->suspend_read_count);
+	fprintf(ssd->outputfile, "suspend write  count : %13d\n", ssd->suspend_write_count);
 
 	fprintf(ssd->outputfile, "\n");
 	fflush(ssd->outputfile);
@@ -871,6 +873,7 @@ void statistic_output(struct ssd_info *ssd)
 	fprintf(ssd->statisticfile, "erase suspend count : %13d\n", ssd->suspend_count);
 	fprintf(ssd->statisticfile, "erase resume  count : %13d\n", ssd->resume_count);
 	fprintf(ssd->statisticfile, "suspend read  count : %13d\n", ssd->suspend_read_count);
+	fprintf(ssd->outputfile, "suspend write  count : %13d\n", ssd->suspend_write_count);
 	fprintf(ssd->statisticfile, "\n");
 
 	fprintf(ssd->statisticfile, "update sub request count : %13d\n", ssd->update_sub_request);

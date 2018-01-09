@@ -162,11 +162,52 @@ struct ssd_info *handle_write_buffer(struct ssd_info *ssd, struct request *req)
 	
 	return ssd;
 }
-
+/*
 struct ssd_info *handle_read_cache(struct ssd_info *ssd, struct request *req)
 {
+	unsigned int full_page, lsn, lpn, last_lpn, first_lpn;
+	unsigned int mask;
+	unsigned int state,offset1 = 0, offset2 = 0, flag = 0;
+
+	//进行4kb对齐
+	req->size = ((req->lsn + req->size - 1) / secno_num_sub_page - (req->lsn) / secno_num_sub_page + 1) * secno_num_sub_page;
+	req->lsn /= secno_num_sub_page;
+	req->lsn *= secno_num_sub_page;
+
+	full_page = ~(0xffffffff << ssd->parameter->subpage_page);    //全页，表示lpn的子页都是满的
+	lsn = req->lsn;
+	lpn = req->lsn / secno_num_per_page;
+	last_lpn = (req->lsn + req->size - 1) / secno_num_per_page;
+	first_lpn = req->lsn / secno_num_per_page;   //计算lpn
+
+	while (lpn <= last_lpn)
+	{
+		mask = ~(0xffffffff << (ssd->parameter->subpage_page));   //掩码表示的是子页的掩码
+		state = mask;
+
+		if (lpn == first_lpn)
+		{
+			//offset表示state中0的个数，也就是第一个页中缺失的部分
+			offset1 = ssd->parameter->subpage_page - (((lpn + 1)*secno_num_per_page - req->lsn)/secno_num_sub_page);
+			state = state&(0xffffffff << offset1);
+		}
+		if (lpn == last_lpn)
+		{
+			offset2 = ssd->parameter->subpage_page - ((lpn + 1)*secno_num_per_page - (req->lsn + req->size)) / secno_num_sub_page;
+			state = state&(~(0xffffffff << offset2));
+		}
+
+		
+		if (req->operation == READ)
+			ssd = check_w_buff(ssd, lpn, state, NULL, req);
+		else if (req->operation == WRITE)
+			ssd = insert2buffer(ssd, lpn, state, NULL, req);
+
+		lpn++;
+	}
+	
 	return ssd;
-}
+}*/
 
 struct ssd_info * check_w_buff(struct ssd_info *ssd, unsigned int lpn, int state, struct sub_request *sub, struct request *req)
 {

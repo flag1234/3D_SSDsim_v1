@@ -233,6 +233,7 @@ struct ssd_info{
 	unsigned long resume_count;
 	unsigned long suspend_count;
 	unsigned long suspend_read_count;
+	unsigned long suspend_write_count;
 
 	unsigned long program_count;
 	unsigned long pre_all_write;		 //Record preprocessing write operation
@@ -332,6 +333,7 @@ struct chip_info{
 	__int64 erase_begin_time;            
 	__int64 erase_cmplt_time;
 	__int64 erase_rest_time;
+	__int64 erase_suspend_end_time;
 	struct suspend_location *suspend_location;
 
 	unsigned long chip_read_count;      //Record the number of read/program/erase in the chip

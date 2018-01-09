@@ -1230,6 +1230,7 @@ int greedy_gc(struct ssd_info *ssd, unsigned int channel, unsigned int chip, uns
 		ssd->channel_head[channel].chip_head[chip].gc_signal = SIG_ERASE_WAIT;
 		ssd->channel_head[channel].chip_head[chip].erase_begin_time = ssd->channel_head[channel].next_state_predict_time;
 		ssd->channel_head[channel].chip_head[chip].erase_cmplt_time = ssd->channel_head[channel].next_state_predict_time + ssd->parameter->time_characteristics.tBERS + ssd->parameter->time_characteristics.tERSL;
+		ssd->channel_head[channel].chip_head[chip].erase_suspend_end_time= ssd->channel_head[channel].next_state_predict_time + ssd->parameter->time_characteristics.tBERS + ssd->parameter->time_characteristics.tERSL;
 
 		//2.保留擦除操作的现场,产生一个suspend_erase_command请求挂载在chip上
 		suspend_erase_operation(ssd, channel, chip, die, erase_block);
