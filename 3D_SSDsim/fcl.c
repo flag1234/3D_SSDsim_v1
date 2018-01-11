@@ -331,6 +331,7 @@ Status services_2_r_complete(struct ssd_info * ssd)
 		{
 			if ((sub->current_state == SR_COMPLETE) || ((sub->next_state == SR_COMPLETE) && (sub->next_state_predict_time <= ssd->current_time)))
 			{
+				insert2readbuffer(ssd, sub);
 				if (sub != ssd->channel_head[i].subs_r_head)                         
 				{
 					if (sub == ssd->channel_head[i].subs_r_tail)
@@ -359,6 +360,7 @@ Status services_2_r_complete(struct ssd_info * ssd)
 						break;
 					}
 				}
+				
 			}
 			else
 			{

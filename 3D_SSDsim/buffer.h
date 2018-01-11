@@ -27,8 +27,10 @@ Zuo Lu			2017/10/11		  1.9			Support dynamic OSPA allocation strategy				6173766
 struct ssd_info *buffer_management(struct ssd_info *);
 struct ssd_info *no_buffer_distribute(struct ssd_info *);
 struct ssd_info * getout2buffer(struct ssd_info *ssd, struct sub_request *sub, struct request *req);
-struct ssd_info * check_w_buff(struct ssd_info *ssd, unsigned int lpn, int state, struct sub_request *sub, struct request *req);
+int check_w_buff(struct ssd_info *ssd, unsigned int lpn, int state, struct sub_request *sub, struct request *req);
+struct ssd_info * check_r_buff(struct ssd_info *ssd, unsigned int lpn, int state, struct sub_request *sub, struct request *req);
 struct ssd_info * insert2buffer(struct ssd_info *ssd, unsigned int lpn, int state, struct sub_request *sub, struct request *req);
+struct ssd_info * insert2readbuffer(struct ssd_info *ssd, struct sub_request *sub);
 struct sub_request * creat_sub_request(struct ssd_info * ssd, unsigned int lpn, int size, unsigned int state, unsigned int die_number, struct request * req, unsigned int operation);
 struct ssd_info * insert2_command_buffer(struct ssd_info * ssd, struct buffer_info * command_buffer, unsigned int lpn, int size_count, unsigned int state, unsigned int die_number, struct request * req, unsigned int operation);
 struct ssd_info * distribute2_command_buffer(struct ssd_info * ssd, unsigned int lpn, int size_count, unsigned int state, struct request * req, unsigned int operation);
@@ -37,5 +39,5 @@ unsigned int size(unsigned int);
 __int64 calculate_distance(struct ssd_info * ssd, struct buffer_info * die_buffer, unsigned int lpn);
 Status allocate_location(struct ssd_info * ssd, struct sub_request *sub_req, unsigned int die_number);
 
-struct ssd_info *handle_write_buffer(struct ssd_info *ssd, struct request *req);
+struct ssd_info *handle_buffer(struct ssd_info *ssd, struct request *req);
 struct ssd_info *handle_read_cache(struct ssd_info *ssd, struct request *req);

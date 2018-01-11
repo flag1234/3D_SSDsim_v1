@@ -122,7 +122,7 @@ char *result_file_size[3][15] =
 
 };*/
 char *parameters_file = "page.parameters";
-char *trace_file = "usr2.ascii";
+char *trace_file = "example.ascii";
 char *result_file_ex = "example_ex.dat";
 char *result_file_statistic = "example.dat";
 
@@ -500,7 +500,7 @@ void trace_output(struct ssd_info* ssd){
 		flag = 1;
 		start_time = 0;
 		end_time = 0;
-		if (req->response_time != 0)
+		if (req->response_time != 0)//请求在buff中命中
 		{
 			//fprintf(ssd->outputfile, "%16I64u %10u %6u %2u %16I64u %16I64u %10I64u\n", req->time, req->lsn, req->size, req->operation, req->begin_time, req->response_time, req->response_time - req->time);
 			//fflush(ssd->outputfile);

@@ -406,13 +406,15 @@ struct page_info{                      //lpn records the physical page stored in
 
 
 struct dram_info{
-	unsigned int dram_capacity;     
+	unsigned int dram_capacity;
+	unsigned int read_capacity;
 	__int64 current_time;
 
 	struct dram_parameter *dram_paramters;      
 	struct map_info *map;
 
-	struct buffer_info *buffer; 
+	struct buffer_info *buffer;
+	struct buffer_info *read_buffer; 
 	struct buffer_info *command_buffer;					 //used in advanced command buffer
 	//struct buffer_info *static_plane_buffer[PLANE_NUMBER];   //used in advanced command buffer in static allocation
 	struct buffer_info *static_die_buffer[DIE_NUMBER];
@@ -529,6 +531,7 @@ struct event_node{
 struct parameter_value{
 	unsigned int chip_num;          //the number of chip in ssd
 	unsigned int dram_capacity;     //Record the DRAM capacity in SSD
+	unsigned int read_capacity;     //Record the read buff  capacity in SSD
 	unsigned int cpu_sdram;         //sdram capacity in cpu
 
 	unsigned int channel_number;    //Record the number of channels in the SSD, each channel is a separate bus

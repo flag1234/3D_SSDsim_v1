@@ -1,5 +1,6 @@
 #parameter file
 dram capacity = 8388608;     #the unit is B
+read capacity = 1048576;
 chip number[0] = 2;
 chip number[1] = 2;
 chip number[2] = 0;

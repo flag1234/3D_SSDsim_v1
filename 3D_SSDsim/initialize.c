@@ -279,13 +279,16 @@ struct dram_info * initialize_dram(struct ssd_info * ssd)
 		dram->buffer->max_buffer_sector = (ssd->parameter->dram_capacity / ssd->parameter->subpage_capacity) - (ssd->parameter->plane_die * PAGE_INDEX * ssd->parameter->subpage_page * 5);
 	}
 
-	//dram->buffer->max_buffer_sector=ssd->parameter->dram_capacity / ssd->parameter->subpage_capacity; 
+	dram->read_capacity = ssd->parameter->read_capacity;	
+	dram->read_buffer = (tAVLTree *)avlTreeCreate((void*)keyCompareFunc , (void *)freeFunc);
+	dram->read_buffer->max_buffer_sector = ssd->parameter->read_capacity / ssd->parameter->subpage_capacity; 
 
 	/**********************************************增加高级命令的缓存初始化******************************************************************/
 	//1.为对应的缓存定平衡二叉树
 	dram->command_buffer = (tAVLTree *)avlTreeCreate((void*)keyCompareFunc, (void *)freeFunc);
 	for (i = 0; i < DIE_NUMBER; i++)
 		dram->static_die_buffer[i] = (tAVLTree *)avlTreeCreate((void*)keyCompareFunc, (void *)freeFunc);
+
 
 	//2.给不同的缓存，按照高级命令设置不同的大小
 	if (ssd->parameter->flash_mode == SLC_MODE)
@@ -551,6 +554,8 @@ struct parameter_value *load_parameters(char parameter_file[30])
 			sscanf(buf + next_eql,"%d",&p->chip_num);           //The number of chips
 		}else if((res_eql=strcmp(buf,"dram capacity")) ==0){
 			sscanf(buf + next_eql,"%d",&p->dram_capacity);      //The size of the cache, the unit is byte
+		}else if((res_eql=strcmp(buf,"read capacity")) ==0){
+			sscanf(buf + next_eql,"%d",&p->read_capacity);      //The size of the cache, the unit is byte
 		}else if((res_eql=strcmp(buf,"channel number")) ==0){
 			sscanf(buf + next_eql,"%d",&p->channel_number);		//The number of channels
 		}else if((res_eql=strcmp(buf,"die number")) ==0){
