@@ -334,6 +334,7 @@ struct chip_info{
 	__int64 erase_cmplt_time;
 	__int64 erase_rest_time;
 	__int64 erase_suspend_end_time;
+	int suspend_flag;
 	struct suspend_location *suspend_location;
 
 	unsigned long chip_read_count;      //Record the number of read/program/erase in the chip

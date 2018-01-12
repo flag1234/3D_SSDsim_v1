@@ -122,7 +122,7 @@ char *result_file_size[3][15] =
 
 };*/
 char *parameters_file = "page.parameters";
-char *trace_file = "example.ascii";
+char *trace_file = "usr2.ascii";
 char *result_file_ex = "example_ex.dat";
 char *result_file_statistic = "example.dat";
 
@@ -821,6 +821,11 @@ void statistic_output(struct ssd_info *ssd)
 	fprintf(ssd->outputfile,"buffer read miss: %13d\n",ssd->dram->buffer->read_miss_hit);
 	fprintf(ssd->outputfile,"buffer write hits: %13d\n",ssd->dram->buffer->write_hit);
 	fprintf(ssd->outputfile,"buffer write miss: %13d\n",ssd->dram->buffer->write_miss_hit);
+	fprintf(ssd->outputfile, "\n");
+	fprintf(ssd->outputfile,"read buffer read hits: %13d\n",ssd->dram->read_buffer->read_hit);
+	fprintf(ssd->outputfile,"read buffer read miss: %13d\n",ssd->dram->read_buffer->read_miss_hit);
+	fprintf(ssd->outputfile,"read buffer write hits: %13d\n",ssd->dram->read_buffer->write_hit);
+	fprintf(ssd->outputfile,"read buffer write miss: %13d\n",ssd->dram->read_buffer->write_miss_hit);
 	
 	fprintf(ssd->outputfile, "update sub request count : %13d\n", ssd->update_sub_request);
 	fprintf(ssd->outputfile, "half page read count : %13d\n", ssd->half_page_read_count);
@@ -873,7 +878,7 @@ void statistic_output(struct ssd_info *ssd)
 	fprintf(ssd->statisticfile, "erase suspend count : %13d\n", ssd->suspend_count);
 	fprintf(ssd->statisticfile, "erase resume  count : %13d\n", ssd->resume_count);
 	fprintf(ssd->statisticfile, "suspend read  count : %13d\n", ssd->suspend_read_count);
-	fprintf(ssd->outputfile, "suspend write  count : %13d\n", ssd->suspend_write_count);
+	fprintf(ssd->statisticfile, "suspend write  count : %13d\n", ssd->suspend_write_count);
 	fprintf(ssd->statisticfile, "\n");
 
 	fprintf(ssd->statisticfile, "update sub request count : %13d\n", ssd->update_sub_request);
@@ -894,6 +899,10 @@ void statistic_output(struct ssd_info *ssd)
 	fprintf(ssd->statisticfile,"buffer write hits: %13d\n",ssd->dram->buffer->write_hit);
 	fprintf(ssd->statisticfile,"buffer write miss: %13d\n",ssd->dram->buffer->write_miss_hit);
 	fprintf(ssd->statisticfile, "\n");
+	fprintf(ssd->statisticfile,"read buffer read hits: %13d\n",ssd->dram->read_buffer->read_hit);
+	fprintf(ssd->statisticfile,"read buffer read miss: %13d\n",ssd->dram->read_buffer->read_miss_hit);
+	fprintf(ssd->statisticfile,"read buffer write hits: %13d\n",ssd->dram->read_buffer->write_hit);
+	fprintf(ssd->statisticfile,"read buffer write miss: %13d\n",ssd->dram->read_buffer->write_miss_hit);
 	fflush(ssd->statisticfile);
 
 	fclose(ssd->statisticfile);
