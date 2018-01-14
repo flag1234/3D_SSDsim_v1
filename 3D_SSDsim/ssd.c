@@ -122,9 +122,9 @@ char *result_file_size[3][15] =
 
 };*/
 char *parameters_file = "page.parameters";
-char *trace_file = "usr2.ascii";
-char *result_file_ex = "example_ex.dat";
-char *result_file_statistic = "example.dat";
+char *trace_file = "fiu_web.ascii";
+char *result_file_ex = "fiu_web_ex.dat";
+char *result_file_statistic = "fiu_web.dat";
 
 
 /********************************************************************************************************************************
@@ -332,7 +332,8 @@ struct ssd_info *simulate(struct ssd_info *ssd)
 			}
 
 		}
-		
+		//if (ssd->dram->read_buffer->pTreeHeader == NULL)
+			//printf("1\n");
 		/*ftl+fcl+flash layer*/
 		process(ssd); 
 

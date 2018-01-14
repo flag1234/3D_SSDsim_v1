@@ -66,6 +66,7 @@ extern int freeFunc(TREE_NODE *pNode)
 	if(pNode!=NULL)
 	{
 		free((void *)pNode);
+		//free(pNode);
 	}
 	
 	
