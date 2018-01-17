@@ -331,15 +331,19 @@ struct dram_info * initialize_dram(struct ssd_info * ssd)
 		}
 	}
 	/******************************************************************************************************************************************/
-
+	
 	dram->map = (struct map_info *)malloc(sizeof(struct map_info));
 	alloc_assert(dram->map,"dram->map");
-	memset(dram->map,0, sizeof(struct map_info));
+	memset(dram->map, 0, sizeof(struct map_info));
 
 	page_num = ssd->parameter->page_block*ssd->parameter->block_plane*ssd->parameter->plane_die*ssd->parameter->die_chip*ssd->parameter->chip_num;
 	dram->map->map_entry = (struct entry *)malloc(sizeof(struct entry) * page_num); 
 	alloc_assert(dram->map->map_entry,"dram->map->map_entry");
-	memset(dram->map->map_entry,0,sizeof(struct entry) * page_num);
+	memset(dram->map->map_entry, 0,sizeof(struct entry) * page_num);
+
+	dram->ph = (struct phy_hit *)malloc(sizeof(struct phy_hit) * page_num);
+	alloc_assert(dram->ph,"dram->ph");
+	memset(dram->ph, 0, sizeof(struct phy_hit) * page_num);
 	
 	return dram;
 }

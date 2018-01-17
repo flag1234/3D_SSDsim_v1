@@ -384,15 +384,18 @@ Status services_2_r_wait(struct ssd_info * ssd, unsigned int channel)
 {
 	struct sub_request ** sub_place = NULL;
 	unsigned int sub_r_req_count, i ,chip;
+	unsigned int * erase_block;
 
 	sub_place = (struct sub_request **)malloc(ssd->parameter->plane_die * PAGE_INDEX * sizeof(struct sub_request *));
 	alloc_assert(sub_place, "sub_place");
 	sub_r_req_count = 0;
+	erase_block = (unsigned int*)malloc(ssd->parameter->plane_die * sizeof(erase_block));
+	
 	for (chip = 0; chip < ssd->parameter->chip_channel[channel]; chip++)
 	{
 		/*************************************************************************************************************************************/
 		//判断收到的gc信号，如果是resume的信号，则进行恢复擦除操作
-		if (ssd->channel_head[channel].chip_head[chip].gc_signal != SIG_NORMAL)
+		/*if (ssd->channel_head[channel].chip_head[chip].gc_signal != SIG_NORMAL)
 		{
 			if ((ssd->channel_head[channel].chip_head[chip].current_state == CHIP_IDLE) || ((ssd->channel_head[channel].chip_head[chip].next_state == CHIP_IDLE) &&
 				(ssd->channel_head[channel].chip_head[chip].next_state_predict_time <= ssd->current_time)))
@@ -421,8 +424,92 @@ Status services_2_r_wait(struct ssd_info * ssd, unsigned int channel)
 					}
 				}
 			}
+		}*/
+		/***************************************************************************************************************************************/
+		if (ssd->parameter->flash_mode == TLC_MODE)							 //只有在tlc mode 下才能进行one shot mutli plane read/one shot read
+		{
+			//判断是否可以用高级命令oneshot_mutliplane_read
+			if ((ssd->parameter->advanced_commands&AD_ONESHOT_READ) == AD_ONESHOT_READ && (ssd->parameter->advanced_commands&AD_MUTLIPLANE) == AD_MUTLIPLANE)
+			{
+				sub_r_req_count = find_r_wait_sub_request(ssd, channel, chip, sub_place, ONE_SHOT_READ_MUTLI_PLANE);
+			}
+			//判断能否用one shot read高级命令完成
+			if ((ssd->parameter->advanced_commands&AD_ONESHOT_READ) == AD_ONESHOT_READ)
+			{
+				sub_r_req_count = find_r_wait_sub_request(ssd, channel, chip, sub_place, ONE_SHOT_READ);
+			}
+		}
+		//判断能否用mutli plane高级命令完成
+		if ((ssd->parameter->advanced_commands&AD_MUTLIPLANE) == AD_MUTLIPLANE)
+		{
+			sub_r_req_count = find_r_wait_sub_request(ssd, channel, chip, sub_place, MUTLI_PLANE);
+		}
+
+		//若不能，表示所有的高级命令都不可行，则去执行普通的读请求,若普通的读请求未找到，则返回，本chip无有效读请求执行
+		sub_r_req_count = find_r_wait_sub_request(ssd, channel, chip, sub_place, NORMAL);
+		if (sub_r_req_count == 1)
+		{
+			ssd->channel_head[channel].channel_busy_flag = 1;
+		}
+		else if (sub_r_req_count == 0)
+		{
+			ssd->channel_head[channel].channel_busy_flag = 0;
+		}
+		
+		/***************************************************************************************************************************************/
+		//判断是否有suspend挂起引起来的读请求，如果是，将这些请求挂载在对应channel的请求上
+		int suspend_flag = 0;
+		if (ssd->channel_head[channel].chip_head[chip].gc_signal != SIG_NORMAL)
+		{
+			if (sub_r_req_count != 0)
+			{
+				//判断找到的读子请求里面有没有读挂起的块
+				for (int bn = 0; bn < sub_r_req_count; bn++){
+					if((sub_place[bn]->location->plane == ssd->channel_head[channel].chip_head[chip].suspend_location->plane[0] && sub_place[bn]->location->block == ssd->channel_head[channel].chip_head[chip].suspend_location->block[0]) ||
+					   (sub_place[bn]->location->block == ssd->channel_head[channel].chip_head[chip].suspend_location->block[1] && sub_place[bn]->location->block == ssd->channel_head[channel].chip_head[chip].suspend_location->block[1])){
+						suspend_flag = 1;
+						break;
+					}
+				}
+				//更改挂起状态
+				if(suspend_flag == 1){
+					if (ssd->channel_head[channel].chip_head[chip].gc_signal == SIG_ERASE_WAIT)
+					{
+						if(ssd->channel_head[channel].chip_head[chip].suspend_flag == 0){//在挂起周期内第一次挂起
+							ssd->channel_head[channel].chip_head[chip].suspend_flag = 1;
+						}
+						//修改时间
+						if(ssd->current_time + ssd->parameter->time_characteristics->tERSL >= ssd->channel_head[channel].chip_head[chip].ers_limit){
+							//不能挂起，擦除收尾
+						}
+						else{
+							ssd->current_time += ssd->parameter->time_characteristics->tERSL;
+							ssd->channel_head[channel].chip_head[chip].erase_suspend_begin_time = ssd->current_time;
+							ssd->channel_head[channel].chip_head[chip].erase_rest_time = ssd->channel_head[channel].chip_head[chip].erase_rest_time - (ssd->current_time - ssd->channel_head[channel].chip_head[chip].erase_suspend_end_time);
+							//ssd->channel_head[channel].chip_head[chip].erase_suspend_begin_time
+							suspend_erase_operation(ssd, channel, chip, 0, erase_block);
+							ssd->suspend_count++;
+							ssd->channel_head[channel].chip_head[chip].gc_signal = SIG_ERASE_SUSPEND;
+						}
+					}
+					else{
+						printf("read block that not suspend\n");
+						getchar();
+					}
+					/*
+					//如果已经是挂起状态了，则恢复
+					else if (ssd->channel_head[channel].chip_head[chip].gc_signal == SIG_ERASE_SUSPEND)
+						ssd->channel_head[channel].chip_head[chip].gc_signal = SIG_ERASE_RESUME;
+					//如果是恢复状态，则可以再次挂起
+					else
+						ssd->channel_head[channel].chip_head[chip].gc_signal = SIG_ERASE_SUSPEND;
+					*/
+					ssd->suspend_read_count += sub_r_req_count;
+				}
+			}
 		}
 		/***************************************************************************************************************************************/
+
 		if (ssd->parameter->flash_mode == TLC_MODE)							 //只有在tlc mode 下才能进行one shot mutli plane read/one shot read
 		{
 			//判断是否可以用高级命令oneshot_mutliplane_read
@@ -481,51 +568,7 @@ Status services_2_r_wait(struct ssd_info * ssd, unsigned int channel)
 		{
 			ssd->channel_head[channel].channel_busy_flag = 0;
 		}
-		
-		/***************************************************************************************************************************************/
-		//判断是否有suspend挂起引起来的读请求，如果是，将这些请求挂载在对应channel的请求上
-		int suspend_flag = 0;
-		if (ssd->channel_head[channel].chip_head[chip].gc_signal != SIG_NORMAL)
-		{
-			if (sub_r_req_count != 0)
-			{
-				//判断找到的读子请求里面有没有读挂起的块
-				for (int bn = 0; bn < sub_r_req_count; bn++){
-					if((sub_place[bn]->location->plane == ssd->channel_head[channel].chip_head[chip].suspend_location->plane[0] && sub_place[bn]->location->block == ssd->channel_head[channel].chip_head[chip].suspend_location->block[0]) ||
-					   (sub_place[bn]->location->block == ssd->channel_head[channel].chip_head[chip].suspend_location->block[1] && sub_place[bn]->location->block == ssd->channel_head[channel].chip_head[chip].suspend_location->block[1])){
-						suspend_flag = 1;
-						break;
-					}
-				}
-				//更改挂起状态
-				if(suspend_flag == 1){
-					if (ssd->channel_head[channel].chip_head[chip].gc_signal == SIG_ERASE_WAIT)
-					{
-						if(ssd->channel_head[channel].chip_head[chip].suspend_flag == 0){//在挂起周期内第一次挂起
-							ssd->channel_head[channel].chip_head[chip].suspend_flag = 1;
-						}
-						ssd->channel_head[channel].chip_head[chip].erase_rest_time = ssd->channel_head[channel].chip_head[chip].erase_cmplt_time - ssd->current_time;
-						ssd->suspend_count++;
-						ssd->channel_head[channel].chip_head[chip].gc_signal = SIG_ERASE_SUSPEND;
-					}
-					else{
-						printf("read block that not suspend\n");
-						getchar();
-					}
-					/*
-					//如果已经是挂起状态了，则恢复
-					else if (ssd->channel_head[channel].chip_head[chip].gc_signal == SIG_ERASE_SUSPEND)
-						ssd->channel_head[channel].chip_head[chip].gc_signal = SIG_ERASE_RESUME;
-					//如果是恢复状态，则可以再次挂起
-					else
-						ssd->channel_head[channel].chip_head[chip].gc_signal = SIG_ERASE_SUSPEND;
-					*/
-					ssd->suspend_read_count += sub_r_req_count;
-				}
-			}
 		}
-		/***************************************************************************************************************************************/
-
 	}
 
 	for (i = 0; i < (ssd->parameter->plane_die * PAGE_INDEX); i++)
@@ -884,6 +927,10 @@ Status go_one_step(struct ssd_info * ssd, struct sub_request ** subs, unsigned i
 					ssd->channel_head[location->channel].chip_head[location->chip].gc_signal = SIG_ERASE_WAIT;
 				}
 			}
+
+			//更新对应的表项
+			ssd->dram->ph[sub->ppn].near_hit_count ++;
+			ssd->dram->ph[sub->ppn].near_hit_time = sub->complete_time;
 			
 			break;
 		}
