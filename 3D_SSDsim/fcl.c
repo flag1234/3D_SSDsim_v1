@@ -390,6 +390,7 @@ Status services_2_r_wait(struct ssd_info * ssd, unsigned int channel)
 	alloc_assert(sub_place, "sub_place");
 	sub_r_req_count = 0;
 	erase_block = (unsigned int*)malloc(ssd->parameter->plane_die * sizeof(erase_block));
+
 	
 	for (chip = 0; chip < ssd->parameter->chip_channel[channel]; chip++)
 	{
@@ -426,6 +427,16 @@ Status services_2_r_wait(struct ssd_info * ssd, unsigned int channel)
 			}
 		}*/
 		/***************************************************************************************************************************************/
+		//如果擦除操作已经完成，需要更新状态
+		if(ssd->channel_head[channel].chip_head[chip].gc_signal != SIG_NORMAL){
+			if ((ssd->channel_head[channel].chip_head[chip].current_state == CHIP_IDLE) || ((ssd->channel_head[channel].chip_head[chip].next_state == CHIP_IDLE) &&
+				(ssd->channel_head[channel].chip_head[chip].next_state_predict_time <= ssd->current_time)){
+				if(ssd->current_time >= ssd->channel_head[channel].chip_head[chip].erase_cmplt_time)
+					//更新状态及时间
+					erase_complete(ssd, channel, chip);
+			}
+		}
+		/***************************************************************************************************************************************/	
 		if (ssd->parameter->flash_mode == TLC_MODE)							 //只有在tlc mode 下才能进行one shot mutli plane read/one shot read
 		{
 			//判断是否可以用高级命令oneshot_mutliplane_read
@@ -481,9 +492,13 @@ Status services_2_r_wait(struct ssd_info * ssd, unsigned int channel)
 						//修改时间
 						if(ssd->current_time + ssd->parameter->time_characteristics->tERSL >= ssd->channel_head[channel].chip_head[chip].ers_limit){
 							//不能挂起，擦除收尾
+							ssd->current_time = ssd->channel_head[channel].chip_head[chip].ers_limit;
+							erase_complete(ssd, channel, chip);
 						}
 						else{
-							ssd->current_time += ssd->parameter->time_characteristics->tERSL;
+							//ssd->current_time += ssd->parameter->time_characteristics->tERSL;//go_step会在current_time的基础上更新时间
+							//不能直接加在current time上，其余chip还需要依靠此时间，在go_one_step中加
+							//ssd->channel_head[channel].chip_head[chip].
 							ssd->channel_head[channel].chip_head[chip].erase_suspend_begin_time = ssd->current_time;
 							ssd->channel_head[channel].chip_head[chip].erase_rest_time = ssd->channel_head[channel].chip_head[chip].erase_rest_time - (ssd->current_time - ssd->channel_head[channel].chip_head[chip].erase_suspend_end_time);
 							//ssd->channel_head[channel].chip_head[chip].erase_suspend_begin_time
@@ -515,7 +530,6 @@ Status services_2_r_wait(struct ssd_info * ssd, unsigned int channel)
 			//判断是否可以用高级命令oneshot_mutliplane_read
 			if ((ssd->parameter->advanced_commands&AD_ONESHOT_READ) == AD_ONESHOT_READ && (ssd->parameter->advanced_commands&AD_MUTLIPLANE) == AD_MUTLIPLANE)
 			{
-				sub_r_req_count = find_r_wait_sub_request(ssd, channel, chip, sub_place, ONE_SHOT_READ_MUTLI_PLANE);
 				if (sub_r_req_count == (PAGE_INDEX*ssd->parameter->plane_die))
 				{
 					go_one_step(ssd, sub_place, sub_r_req_count, SR_R_C_A_TRANSFER, ONE_SHOT_READ_MUTLI_PLANE);
@@ -526,7 +540,6 @@ Status services_2_r_wait(struct ssd_info * ssd, unsigned int channel)
 			//判断能否用one shot read高级命令完成
 			if ((ssd->parameter->advanced_commands&AD_ONESHOT_READ) == AD_ONESHOT_READ)
 			{
-				sub_r_req_count = find_r_wait_sub_request(ssd, channel, chip, sub_place, ONE_SHOT_READ);
 				if (sub_r_req_count == PAGE_INDEX)
 				{
 
@@ -542,7 +555,6 @@ Status services_2_r_wait(struct ssd_info * ssd, unsigned int channel)
 		//判断能否用mutli plane高级命令完成
 		if ((ssd->parameter->advanced_commands&AD_MUTLIPLANE) == AD_MUTLIPLANE)
 		{
-			sub_r_req_count = find_r_wait_sub_request(ssd, channel, chip, sub_place, MUTLI_PLANE);
 			if ((sub_r_req_count >1) && (sub_r_req_count <= ssd->parameter->plane_die))
 			{
 				for (i = sub_r_req_count; i < (ssd->parameter->plane_die * PAGE_INDEX); i++)
@@ -555,7 +567,6 @@ Status services_2_r_wait(struct ssd_info * ssd, unsigned int channel)
 		}
 
 		//若不能，表示所有的高级命令都不可行，则去执行普通的读请求,若普通的读请求未找到，则返回，本chip无有效读请求执行
-		sub_r_req_count = find_r_wait_sub_request(ssd, channel, chip, sub_place, NORMAL);
 		if (sub_r_req_count == 1)
 		{
 			for (i = sub_r_req_count; i < (ssd->parameter->plane_die * PAGE_INDEX); i++)
@@ -568,7 +579,7 @@ Status services_2_r_wait(struct ssd_info * ssd, unsigned int channel)
 		{
 			ssd->channel_head[channel].channel_busy_flag = 0;
 		}
-		}
+		
 	}
 
 	for (i = 0; i < (ssd->parameter->plane_die * PAGE_INDEX); i++)
@@ -862,6 +873,7 @@ Status go_one_step(struct ssd_info * ssd, struct sub_request ** subs, unsigned i
 			sub->current_state = SR_R_READ;
 			sub->next_state = SR_R_DATA_TRANSFER;
 			sub->next_state_predict_time = ssd->current_time + ssd->parameter->time_characteristics.tR;
+			
 
 			ssd->read_count++;
 			ssd->channel_head[location->channel].chip_head[location->chip].die_head[location->die].plane_head[location->plane].blk_head[location->block].page_read_count++;
@@ -870,7 +882,11 @@ Status go_one_step(struct ssd_info * ssd, struct sub_request ** subs, unsigned i
 			ssd->channel_head[location->channel].chip_head[location->chip].current_time = ssd->current_time;
 			ssd->channel_head[location->channel].chip_head[location->chip].next_state = CHIP_DATA_TRANSFER;
 			ssd->channel_head[location->channel].chip_head[location->chip].next_state_predict_time = ssd->current_time + ssd->parameter->time_characteristics.tR;
-			
+			//如果挂起，chip,请求的时间需要加上挂起的时间
+			if(ssd->channel_head[location->channel].chip_head[location->chip].gc_signal == SIG_ERASE_SUSPEND){
+				ssd->channel_head[location->channel].chip_head[location->chip].next_state_predict_time += ssd->parameter->time_characteristics.tERSL;
+				sub->next_state_predict_time += ssd->parameter->time_characteristics.tERSL;
+			}
 			//向文件中输出当前的current time，以及plane号
 			//if (sub->total_request->request_read_num % SAMPLE_SPACE == 0)
 			//{
@@ -914,18 +930,16 @@ Status go_one_step(struct ssd_info * ssd, struct sub_request ** subs, unsigned i
 			//判断是否有suspend read
 			if (ssd->channel_head[location->channel].chip_head[location->chip].gc_signal == SIG_ERASE_SUSPEND)
 			{
-				
-				//加上请求挂起恢复的时间
-				//ssd->channel_head[location->channel].chip_head[location->chip].next_state_predict_time += ssd->parameter->time_characteristics.tERSL;
-					
-				if (ssd->channel_head[location->channel].chip_head[location->chip].next_state_predict_time >= ssd->channel_head[location->channel].chip_head[location->chip].erase_cmplt_time)
-				{
-					ssd->channel_head[location->channel].chip_head[location->chip].gc_signal = SIG_ERASE_RESUME;
-					ssd->resume_count++;
-				}
-				else{
-					ssd->channel_head[location->channel].chip_head[location->chip].gc_signal = SIG_ERASE_WAIT;
-				}
+				//挂起恢复
+				ssd->channel_head[location->channel].chip_head[location->chip].gc_signal = SIG_ERASE_WAIT;
+				//更新时间
+
+				resume_erase_operation(ssd, location->channel, location->chip);
+
+				//如果时间已经超过挂起延时，就直接完成擦除
+				if(ssd->channel_head[location->channel].chip_head[location->chip].erase_suspend_end_time >= 
+					ssd->channel_head[location->channel].chip_head[location->chip].ers_limit)
+					erase_complete(ssd, location->channel, location->chip);
 			}
 
 			//更新对应的表项

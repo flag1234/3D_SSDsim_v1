@@ -256,6 +256,7 @@ __int64 find_nearest_event(struct ssd_info *ssd)
 	__int64 time = 0x7fffffffffffffff;
 	__int64 time1 = 0x7fffffffffffffff;
 	__int64 time2 = 0x7fffffffffffffff;
+	__int64 temp_time = 0x7fffffffffffffff;
 
 	for (i = 0; i<ssd->parameter->channel_number; i++)
 	{
@@ -265,10 +266,17 @@ __int64 find_nearest_event(struct ssd_info *ssd)
 					time1 = ssd->channel_head[i].next_state_predict_time;
 		for (j = 0; j<ssd->parameter->chip_channel[i]; j++)
 		{
-			if ((ssd->channel_head[i].chip_head[j].next_state == CHIP_IDLE) || (ssd->channel_head[i].chip_head[j].next_state == CHIP_DATA_TRANSFER))
-				if (time2>ssd->channel_head[i].chip_head[j].next_state_predict_time)
+			if ((ssd->channel_head[i].chip_head[j].next_state == CHIP_IDLE) || (ssd->channel_head[i].chip_head[j].next_state == CHIP_DATA_TRANSFER)){
+				//如果是挂起的块，先将时间推后方便读入trace
+				if(ssd->channel_head[i].chip_head[j].gc_signal != SIG_NORMAL)
+					temp_time = ssd->channel_head[i].chip_head[j].erase_cmplt_time;
+				else
+					temp_time = ssd->channel_head[i].chip_head[j].next_state_predict_time;
+
+				if (time2>temp_time)
 					if (ssd->channel_head[i].chip_head[j].next_state_predict_time>ssd->current_time)
 						time2 = ssd->channel_head[i].chip_head[j].next_state_predict_time;
+			}
 		}
 	}
 
