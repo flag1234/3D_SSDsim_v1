@@ -314,6 +314,8 @@ struct ssd_info * insert2buffer(struct ssd_info *ssd, unsigned int lpn, int stat
 	unsigned int sub_req_state = 0, sub_req_size = 0, sub_req_lpn = 0;
 	unsigned int add_size;
 
+	int insert_status = -1;
+
 #ifdef DEBUG
 	printf("enter insert2buffer,  current time:%I64u, lpn:%d, state:%d,\n", ssd->current_time, lpn, state);
 #endif
@@ -394,7 +396,9 @@ struct ssd_info * insert2buffer(struct ssd_info *ssd, unsigned int lpn, int stat
 		}
 		ssd->dram->buffer->buffer_head = new_node;
 		new_node->LRU_link_pre = NULL;
-		avlTreeAdd(ssd->dram->buffer, (TREE_NODE *)new_node);
+		insert_status = avlTreeAdd(ssd->dram->buffer, (TREE_NODE *)new_node);
+		if (insert_status == 0)
+			printf("1\n");
 		ssd->dram->buffer->buffer_sector_count += sector_count;
 		ssd->dram->buffer->write_hit++;
 	}

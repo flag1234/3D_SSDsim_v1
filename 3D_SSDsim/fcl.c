@@ -430,11 +430,11 @@ Status services_2_r_wait(struct ssd_info * ssd, unsigned int channel)
 		//如果擦除操作已经完成，需要更新状态
 		if(ssd->channel_head[channel].chip_head[chip].gc_signal != SIG_NORMAL){
 			if ((ssd->channel_head[channel].chip_head[chip].current_state == CHIP_IDLE) || ((ssd->channel_head[channel].chip_head[chip].next_state == CHIP_IDLE) &&
-				(ssd->channel_head[channel].chip_head[chip].next_state_predict_time <= ssd->current_time)){
+				(ssd->channel_head[channel].chip_head[chip].next_state_predict_time <= ssd->current_time))){
 				if(ssd->current_time >= ssd->channel_head[channel].chip_head[chip].erase_cmplt_time)
 					//更新状态及时间
 					erase_complete(ssd, channel, chip);
-			}
+				}
 		}
 		/***************************************************************************************************************************************/	
 		if (ssd->parameter->flash_mode == TLC_MODE)							 //只有在tlc mode 下才能进行one shot mutli plane read/one shot read
@@ -490,7 +490,7 @@ Status services_2_r_wait(struct ssd_info * ssd, unsigned int channel)
 							ssd->channel_head[channel].chip_head[chip].suspend_flag = 1;
 						}
 						//修改时间
-						if(ssd->current_time + ssd->parameter->time_characteristics->tERSL >= ssd->channel_head[channel].chip_head[chip].ers_limit){
+						if(ssd->current_time + ssd->parameter->time_characteristics.tERSL >= ssd->channel_head[channel].chip_head[chip].ers_limit){
 							//不能挂起，擦除收尾
 							ssd->current_time = ssd->channel_head[channel].chip_head[chip].ers_limit;
 							erase_complete(ssd, channel, chip);

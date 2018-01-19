@@ -252,6 +252,7 @@ void tracefile_sim(struct ssd_info *ssd)
 
 	//system("pause");
  	_CrtDumpMemoryLeaks();  //Memory leak detection
+	
 }
 
 
@@ -957,7 +958,9 @@ void free_all_node(struct ssd_info *ssd)
 	ssd->channel_head=NULL;
 
 	avlTreeDestroy( ssd->dram->buffer);
+	avlTreeDestroy( ssd->dram->read_buffer);
 	ssd->dram->buffer=NULL;
+	ssd->dram->read_buffer = NULL;
 	avlTreeDestroy(ssd->dram->command_buffer);
 	ssd->dram->command_buffer = NULL;
 	
@@ -969,6 +972,8 @@ void free_all_node(struct ssd_info *ssd)
 
 	free(ssd->dram->map->map_entry);
 	ssd->dram->map->map_entry=NULL;
+	free(ssd->dram->ph);
+	ssd->dram->ph=NULL;
 	free(ssd->dram->map);
 	ssd->dram->map=NULL;
 	free(ssd->dram);
