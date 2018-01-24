@@ -50,7 +50,7 @@ char *parameters_file[3] =
 "page_OSA.parameters",
 "page_TSA.parameters"
 };
-
+*/
 //trace 路径名
 char *trace_file[15] =
 {
@@ -61,70 +61,70 @@ char *trace_file[15] =
 
 char *result_file_statistic[3][15] =
 { 
-	{ "exchange_TDA.dat", "fiu_web_TDA.dat", "hm0_TDA.dat", "hm1_TDA.dat", "proj0_TDA.dat", "proj3_TDA.dat", "rsrch0_TDA.dat", "src0_TDA.dat", "src1_TDA.dat",
-	 "ts0_TDA.dat", "usr0_TDA.dat", "vps_TDA.dat", "w1_TDA.dat", "w2_TDA.dat", "wdev0_TDA.dat"
+	{ "exchange.dat", "fiu_web.dat", "hm0.dat", "hm1.dat", "proj0.dat", "proj3.dat", "rsrch0.dat", "src0.dat", "src1.dat",
+	 "ts0.dat", "usr0.dat", "vps.dat", "w1.dat", "w2.dat", "wdev0.dat"
 	},
     
-	{ "exchange_OSA.dat", "fiu_web_OSA.dat", "hm0_OSA.dat", "hm1_OSA.dat", "proj0_OSA.dat", "proj3_OSA.dat", "rsrch0_OSA.dat", "src0_OSA.dat", "src1_OSA.dat",
-	 "ts0_OSA.dat", "usr0_OSA.dat",  "vps_OSA.dat", "w1_OSA.dat", "w2_OSA.dat", "wdev0_OSA.dat"
-	},
+	//{ "exchange.dat", "fiu_web.dat", "hm0.dat", "hm1.dat", "proj0.dat", "proj3.dat", "rsrch0.dat", "src0.dat", "src1.dat",
+	// "ts0.dat", "usr0.dat",  "vps.dat", "w1.dat", "w2.dat", "wdev0.dat"
+	//},
 
-	{ "exchange_TSA.dat", "fiu_web_TSA.dat", "hm0_TSA.dat", "hm1_TSA.dat", "proj0_TSA.dat", "proj3_TSA.dat", "rsrch0_TSA.dat", "src0_TSA.dat", "src1_TSA.dat",
-	"ts0_TSA.dat", "usr0_TSA.dat", "vps_TSA.dat", "w1_TSA.dat", "w2_TSA.dat", "wdev0_TSA.dat"
-	}
+	//{ "exchange.dat", "fiu_web_TSA.dat", "hm0_TSA.dat", "hm1_TSA.dat", "proj0_TSA.dat", "proj3_TSA.dat", "rsrch0_TSA.dat", "src0_TSA.dat", "src1_TSA.dat",
+	//"ts0.dat", "usr0_TSA.dat", "vps_TSA.dat", "w1_TSA.dat", "w2_TSA.dat", "wdev0_TSA.dat"
+	//}
 };
 
 
 char *result_file_ex[3][15] =
 { 
-	{ "exchange_TDA_ex.dat", "fiu_web_TDA_ex.dat", "hm0_TDA_ex.dat", "hm1_TDA_ex.dat", "proj0_TDA_ex.dat", "proj3_TDA_ex.dat", "rsrch0_TDA_ex.dat", "src0_TDA_ex.dat", "src1_TDA_ex.dat",
-	 "ts0_TDA_ex.dat", "usr0_TDA_ex.dat", "vps_TDA_ex.dat", "w1_TDA_ex.dat", "w2_TDA_ex.dat", "wdev0_TDA_ex.dat"
+	{ "exchange_ex.dat", "fiu_web_ex.dat", "hm0_ex.dat", "hm1_ex.dat", "proj0_ex.dat", "proj3_ex.dat", "rsrch0_ex.dat", "src0_ex.dat", "src1_ex.dat",
+	 "ts0_ex.dat", "usr0_ex.dat", "vps_ex.dat", "w1_ex.dat", "w2_ex.dat", "wdev0_ex.dat"
 	},
 
-	{ "exchange_OSA_ex.dat", "fiu_web_OSA_ex.dat", "hm0_OSA_ex.dat", "hm1_OSA_ex.dat", "proj0_OSA_ex.dat", "proj3_OSA_ex.dat", "rsrch0_OSA_ex.dat", "src0_OSA_ex.dat", "src1_OSA_ex.dat",
-	 "ts0_OSA_ex.dat", "usr0_OSA_ex.dat", "vps_OSA_ex.dat", "w1_OSA_ex.dat", "w2_OSA_ex.dat", "wdev0_OSA_ex.dat"
-	},
+	//{ "exchange_OSA_ex.dat", "fiu_web_OSA_ex.dat", "hm0_OSA_ex.dat", "hm1_OSA_ex.dat", "proj0_OSA_ex.dat", "proj3_OSA_ex.dat", "rsrch0_OSA_ex.dat", "src0_OSA_ex.dat", "src1_OSA_ex.dat",
+	// "ts0_OSA_ex.dat", "usr0_OSA_ex.dat", "vps_OSA_ex.dat", "w1_OSA_ex.dat", "w2_OSA_ex.dat", "wdev0_OSA_ex.dat"
+	//},
 
-	{ "exchange_TSA_ex.dat", "fiu_web_TSA_ex.dat", "hm0_TSA_ex.dat", "hm1_TSA_ex.dat", "proj0_TSA_ex.dat", "proj3_TSA_ex.dat", "rsrch0_TSA_ex.dat", "src0_TSA_ex.dat", "src1_TSA_ex.dat",
-	"ts0_TSA_ex.dat", "usr0_TSA_ex.dat", "vps_TSA_ex.dat", "w1_TSA_ex.dat", "w2_TSA_ex.dat", "wdev0_TSA_ex.dat"
-	}
+	//{ "exchange_TSA_ex.dat", "fiu_web_TSA_ex.dat", "hm0_TSA_ex.dat", "hm1_TSA_ex.dat", "proj0_TSA_ex.dat", "proj3_TSA_ex.dat", "rsrch0_TSA_ex.dat", "src0_TSA_ex.dat", "src1_TSA_ex.dat",
+	//"ts0_TSA_ex.dat", "usr0_TSA_ex.dat", "vps_TSA_ex.dat", "w1_TSA_ex.dat", "w2_TSA_ex.dat", "wdev0_TSA_ex.dat"
+	//}
 };
 
 char *result_file_die[3][15] =
 { 
 	
-	{ "exchange_TDA_die.dat", "fiu_web_TDA_die.dat", "hm0_TDA_die.dat", "hm1_TDA_die.dat", "proj0_TDA_die.dat", "proj3_TDA_die.dat", "rsrch0_TDA_die.dat", "src0_TDA_die.dat", "src1_TDA_die.dat",
-	 "ts0_TDA_die.dat", "usr0_TDA_die.dat", "vps_TDA_die.dat", "w1_TDA_die.dat", "w2_TDA_die.dat", "wdev0_TDA_die.dat"
+	{ "exchange_die.dat", "fiu_web_die.dat", "hm0_die.dat", "hm1_die.dat", "proj0_die.dat", "proj3_die.dat", "rsrch0_die.dat", "src0_die.dat", "src1_die.dat",
+	 "ts0_die.dat", "usr0_die.dat", "vps_die.dat", "w1_die.dat", "w2_die.dat", "wdev0_die.dat"
 	},
 
-	{ "exchange_OSA_die.dat", "fiu_web_OSA_die.dat", "hm0_OSA_die.dat", "hm1_OSA_die.dat", "proj0_OSA_die.dat", "proj3_OSA_die.dat", "rsrch0_OSA_die.dat", "src0_OSA_die.dat", "src1_OSA_die.dat",
-	 "ts0_OSA_die.dat", "usr0_OSA_die.dat", "vps_OSA_die.dat", "w1_OSA_die.dat", "w2_OSA_die.dat", "wdev0_OSA_die.dat"
-	},
+	//{ "exchange_OSA_die.dat", "fiu_web_OSA_die.dat", "hm0_OSA_die.dat", "hm1_OSA_die.dat", "proj0_OSA_die.dat", "proj3_OSA_die.dat", "rsrch0_OSA_die.dat", "src0_OSA_die.dat", "src1_OSA_die.dat",
+	// "ts0_OSA_die.dat", "usr0_OSA_die.dat", "vps_OSA_die.dat", "w1_OSA_die.dat", "w2_OSA_die.dat", "wdev0_OSA_die.dat"
+	//},
 
-	{ "exchange_TSA_die.dat", "fiu_web_TSA_die.dat", "hm0_TSA_die.dat", "hm1_TSA_die.dat", "proj0_TSA_die.dat", "proj3_TSA_die.dat", "rsrch0_TSA_die.dat", "src0_TSA_die.dat", "src1_TSA_die.dat",
-	"ts0_TSA_die.dat", "usr0_TSA_die.dat", "vps_TSA_die.dat", "w1_TSA_die.dat", "w2_TSA_die.dat", "wdev0_TSA_die.dat"
-	}
+	//{ "exchange_TSA_die.dat", "fiu_web_TSA_die.dat", "hm0_TSA_die.dat", "hm1_TSA_die.dat", "proj0_TSA_die.dat", "proj3_TSA_die.dat", "rsrch0_TSA_die.dat", "src0_TSA_die.dat", "src1_TSA_die.dat",
+	//"ts0_TSA_die.dat", "usr0_TSA_die.dat", "vps_TSA_die.dat", "w1_TSA_die.dat", "w2_TSA_die.dat", "wdev0_TSA_die.dat"
+	//}
 };
 
 char *result_file_size[3][15] =
 {
-	{ "exchange_TDA_size.dat", "fiu_web_TDA_size.dat", "hm0_TDA_size.dat", "hm1_TDA_size.dat", "proj0_TDA_size.dat", "proj3_TDA_size.dat", "rsrch0_TDA_size.dat", "src0_TDA_size.dat", "src1_TDA_size.dat",
-	 "ts0_TDA_size.dat", "usr0_TDA_size.dat", "vps_TDA_size.dat", "w1_TDA_size.dat", "w2_TDA_size.dat", "wdev0_TDA_size.dat"
+	{ "exchange_size.dat", "fiu_web_size.dat", "hm0_size.dat", "hm1_size.dat", "proj0_size.dat", "proj3_size.dat", "rsrch0_size.dat", "src0_size.dat", "src1_size.dat",
+	 "ts0_size.dat", "usr0_size.dat", "vps_size.dat", "w1_size.dat", "w2_size.dat", "wdev0_size.dat"
 	},
 
-	{ "exchange_OSA_size.dat", "fiu_web_OSA_size.dat", "hm0_OSA_size.dat", "hm1_OSA_size.dat", "proj0_OSA_size.dat", "proj3_OSA_size.dat", "rsrch0_OSA_size.dat", "src0_OSA_size.dat", "src1_OSA_size.dat",
-	 "ts0_OSA_size.dat", "usr0_OSA_size.dat", "vps_OSA_size.dat", "w1_OSA_size.dat", "w2_OSA_size.dat", "wdev0_OSA_size.dat"
-	},
+	//{ "exchange_OSA_size.dat", "fiu_web_OSA_size.dat", "hm0_OSA_size.dat", "hm1_OSA_size.dat", "proj0_OSA_size.dat", "proj3_OSA_size.dat", "rsrch0_OSA_size.dat", "src0_OSA_size.dat", "src1_OSA_size.dat",
+	// "ts0_OSA_size.dat", "usr0_OSA_size.dat", "vps_OSA_size.dat", "w1_OSA_size.dat", "w2_OSA_size.dat", "wdev0_OSA_size.dat"
+	//},
 
-	{ "exchange_TSA_size.dat", "fiu_web_TSA_size.dat", "hm0_TSA_size.dat", "hm1_TSA_size.dat", "proj0_TSA_size.dat", "proj3_TSA_size.dat", "rsrch0_TSA_size.dat", "src0_TSA_size.dat", "src1_TSA_size.dat",
-	"ts0_TSA_size.dat", "usr0_TSA_size.dat", "vps_TSA_size.dat", "w1_TSA_size.dat", "w2_TSA_size.dat", "wdev0_TSA_size.dat"
-	}
+	//{ "exchange_TSA_size.dat", "fiu_web_TSA_size.dat", "hm0_TSA_size.dat", "hm1_TSA_size.dat", "proj0_TSA_size.dat", "proj3_TSA_size.dat", "rsrch0_TSA_size.dat", "src0_TSA_size.dat", "src1_TSA_size.dat",
+	//"ts0_TSA_size.dat", "usr0_TSA_size.dat", "vps_TSA_size.dat", "w1_TSA_size.dat", "w2_TSA_size.dat", "wdev0_TSA_size.dat"
+	//}
 
-};*/
+};
 char *parameters_file = "page.parameters";
-char *trace_file = "fiu_web.ascii";
-char *result_file_ex = "fiu_web_ex.dat";
-char *result_file_statistic = "fiu_web.dat";
+//char *trace_file = "hm0.ascii";
+//char *result_file_ex = "hm0_ex.dat";
+//char *result_file_statistic = "hm0.dat";
 
 
 /********************************************************************************************************************************
@@ -145,8 +145,8 @@ void main()
 
 	//for (j = 0; j < 1; j++)
 	//{
-		j = 1;
-		for (i = 0; i < 1; i++)
+		j = 0;
+		for (i = 0; i < 15; i++)
 		{
 			//j = 1;
 			//i = 1;
@@ -160,14 +160,14 @@ void main()
 			strcpy_s(ssd->parameterfilename, 50, "page.parameters");
 
 			//输入trace文件参数，输出文件名
-			/*strcpy_s(ssd->tracefilename, 50, trace_file[i]);
+			strcpy_s(ssd->tracefilename, 50, trace_file[i]);
 			strcpy_s(ssd->outputfilename, 50, result_file_ex[j][i]);
 			strcpy_s(ssd->statisticfilename, 50, result_file_statistic[j][i]);
-//			strcpy_s(ssd->statistic_time_filename, 50, result_file_die[j][i]);
-//			strcpy_s(ssd->statistic_size_filename, 50, result_file_size[j][i]);*/
-			strcpy_s(ssd->tracefilename, 50, trace_file);
-			strcpy_s(ssd->outputfilename, 50, result_file_ex);
-			strcpy_s(ssd->statisticfilename, 50, result_file_statistic);
+			strcpy_s(ssd->statistic_time_filename, 50, result_file_die[j][i]);
+			strcpy_s(ssd->statistic_size_filename, 50, result_file_size[j][i]);
+			//strcpy_s(ssd->tracefilename, 50, trace_file);
+			//strcpy_s(ssd->outputfilename, 50, result_file_ex);
+			//strcpy_s(ssd->statisticfilename, 50, result_file_statistic);
 
 			printf("tracefile:%s begin simulate-------------------------\n", ssd->tracefilename);
 			//getchar();
@@ -178,10 +178,12 @@ void main()
 			//仿真结束，释放所有的节点
 			printf("tracefile:%s end simulate---------------------------\n\n\n", ssd->tracefilename);
 			free_all_node(ssd);
+
+			_CrtDumpMemoryLeaks();
 			//getchar();
 		}
 	//}
-
+	
 	//所有trace跑完停止当前程序
 	system("pause");
 }
@@ -251,7 +253,8 @@ void tracefile_sim(struct ssd_info *ssd)
 	printf("the simulation is completed!\n");
 
 	//system("pause");
- 	_CrtDumpMemoryLeaks();  //Memory leak detection
+ 	//_CrtDumpMemoryLeaks();  //Memory leak detection
+	
 }
 
 
@@ -957,7 +960,9 @@ void free_all_node(struct ssd_info *ssd)
 	ssd->channel_head=NULL;
 
 	avlTreeDestroy( ssd->dram->buffer);
+	avlTreeDestroy( ssd->dram->read_buffer);
 	ssd->dram->buffer=NULL;
+	ssd->dram->read_buffer = NULL;
 	avlTreeDestroy(ssd->dram->command_buffer);
 	ssd->dram->command_buffer = NULL;
 	
@@ -969,6 +974,8 @@ void free_all_node(struct ssd_info *ssd)
 
 	free(ssd->dram->map->map_entry);
 	ssd->dram->map->map_entry=NULL;
+	free(ssd->dram->ph);
+	ssd->dram->ph=NULL;
 	free(ssd->dram->map);
 	ssd->dram->map=NULL;
 	free(ssd->dram);
