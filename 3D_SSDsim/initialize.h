@@ -333,6 +333,7 @@ struct chip_info{
 	__int64 erase_begin_time;            
 	__int64 erase_cmplt_time;
 	__int64 erase_rest_time;
+	__int64 erase_suspend_begin_time;
 	__int64 erase_suspend_end_time;
 	int suspend_flag;
 	struct suspend_location *suspend_location;
@@ -413,6 +414,7 @@ struct dram_info{
 
 	struct dram_parameter *dram_paramters;      
 	struct map_info *map;
+	struct phy_hit *ph;
 
 	struct buffer_info *buffer;
 	struct buffer_info *read_buffer; 
@@ -457,6 +459,11 @@ struct map_info{
 	struct buffer_info *attach_info;	// info about attach map
 };
 
+
+struct phy_hit{
+	unsigned int near_hit_count;
+	unsigned int near_hit_time;
+};
 
 struct controller_info{
 	unsigned int frequency;             //Indicates the operating frequency of the controller

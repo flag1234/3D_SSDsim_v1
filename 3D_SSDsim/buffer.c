@@ -207,9 +207,7 @@ struct ssd_info * check_r_buff(struct ssd_info *ssd, unsigned int lpn, int state
 			{
 				ssd->dram->read_buffer->write_hit++;
 				ssd->dram->read_buffer->buffer_sector_count -= size(buffer_node->stored);
-				if (ssd->dram->read_buffer->buffer_sector_count > ssd->dram->read_buffer->max_buffer_sector)
-					printf("2\n");
-
+				
 				//从读buffer去除命中的节点
 				avlTreeDel(ssd->dram->read_buffer, (TREE_NODE *)buffer_node);
 				if (ssd->dram->read_buffer->buffer_head->LRU_link_next == NULL){
@@ -252,9 +250,7 @@ struct ssd_info * check_r_buff(struct ssd_info *ssd, unsigned int lpn, int state
 				sub_req_lpn = lpn;
 				ssd->dram->read_buffer->write_miss_hit++;
 				ssd->dram->read_buffer->buffer_sector_count -= sub_req_size;
-				if (ssd->dram->read_buffer->buffer_sector_count > ssd->dram->read_buffer->max_buffer_sector)
-					printf("2\n");
-
+				
 			}
 			
 			
@@ -262,8 +258,7 @@ struct ssd_info * check_r_buff(struct ssd_info *ssd, unsigned int lpn, int state
 		
 			
 	}
-	if (ssd->dram->read_buffer->buffer_tail == NULL && ssd->dram->read_buffer->buffer_head == NULL && ssd->dram->read_buffer->buffer_sector_count != 0)
-		printf("2\n");
+	
 	return ssd;
 }
 int check_w_buff(struct ssd_info *ssd, unsigned int lpn, int state, struct sub_request *sub, struct request *req)
@@ -318,6 +313,8 @@ struct ssd_info * insert2buffer(struct ssd_info *ssd, unsigned int lpn, int stat
 
 	unsigned int sub_req_state = 0, sub_req_size = 0, sub_req_lpn = 0;
 	unsigned int add_size;
+
+	int insert_status = -1;
 
 #ifdef DEBUG
 	printf("enter insert2buffer,  current time:%I64u, lpn:%d, state:%d,\n", ssd->current_time, lpn, state);
@@ -399,7 +396,9 @@ struct ssd_info * insert2buffer(struct ssd_info *ssd, unsigned int lpn, int stat
 		}
 		ssd->dram->buffer->buffer_head = new_node;
 		new_node->LRU_link_pre = NULL;
-		avlTreeAdd(ssd->dram->buffer, (TREE_NODE *)new_node);
+		insert_status = avlTreeAdd(ssd->dram->buffer, (TREE_NODE *)new_node);
+		if (insert_status == 0)
+			printf("1\n");
 		ssd->dram->buffer->buffer_sector_count += sector_count;
 		ssd->dram->buffer->write_hit++;
 	}
@@ -698,8 +697,7 @@ struct ssd_info * insert2readbuffer(struct ssd_info *ssd, struct sub_request *su
 			buffer_node->stored = buffer_node->stored | state;
 			buffer_node->dirty_clean = buffer_node->dirty_clean | state;
 			ssd->dram->read_buffer->buffer_sector_count += add_size;
-			if (ssd->dram->read_buffer->buffer_sector_count > ssd->dram->read_buffer->max_buffer_sector)
-				printf("2\n");
+			
 		}
 	}
 	return ssd;
