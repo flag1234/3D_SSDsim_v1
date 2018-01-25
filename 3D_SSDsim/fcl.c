@@ -384,12 +384,12 @@ Status services_2_r_wait(struct ssd_info * ssd, unsigned int channel)
 {
 	struct sub_request ** sub_place = NULL;
 	unsigned int sub_r_req_count, i ,chip;
-	unsigned int * erase_block;
+	//unsigned int * erase_block;
 
 	sub_place = (struct sub_request **)malloc(ssd->parameter->plane_die * PAGE_INDEX * sizeof(struct sub_request *));
 	alloc_assert(sub_place, "sub_place");
 	sub_r_req_count = 0;
-	erase_block = (unsigned int*)malloc(ssd->parameter->plane_die * sizeof(erase_block));
+	//erase_block = (unsigned int*)malloc(ssd->parameter->plane_die * sizeof(unsigned int));
 
 	
 	for (chip = 0; chip < ssd->parameter->chip_channel[channel]; chip++)
@@ -502,7 +502,7 @@ Status services_2_r_wait(struct ssd_info * ssd, unsigned int channel)
 							ssd->channel_head[channel].chip_head[chip].erase_suspend_begin_time = ssd->current_time;
 							ssd->channel_head[channel].chip_head[chip].erase_rest_time = ssd->channel_head[channel].chip_head[chip].erase_rest_time - (ssd->current_time - ssd->channel_head[channel].chip_head[chip].erase_suspend_end_time);
 							//ssd->channel_head[channel].chip_head[chip].erase_suspend_begin_time
-							suspend_erase_operation(ssd, channel, chip, 0, erase_block);
+							suspend_erase_operation(ssd, channel, chip, 0);
 							ssd->suspend_count++;
 							ssd->channel_head[channel].chip_head[chip].gc_signal = SIG_ERASE_SUSPEND;
 						}
@@ -860,6 +860,12 @@ Status go_one_step(struct ssd_info * ssd, struct sub_request ** subs, unsigned i
 			ssd->channel_head[location->channel].chip_head[location->chip].next_state = CHIP_READ_BUSY;
 			ssd->channel_head[location->channel].chip_head[location->chip].next_state_predict_time = ssd->current_time + 7 * ssd->parameter->time_characteristics.tWC;
 
+			//如果挂起，chip,请求的时间需要加上挂起的时间
+			if(ssd->channel_head[location->channel].chip_head[location->chip].gc_signal == SIG_ERASE_SUSPEND){
+				ssd->channel_head[location->channel].chip_head[location->chip].next_state_predict_time += ssd->parameter->time_characteristics.tERSL;
+				sub->next_state_predict_time += ssd->parameter->time_characteristics.tERSL;
+			}
+
 			break;
 
 		}
@@ -882,11 +888,7 @@ Status go_one_step(struct ssd_info * ssd, struct sub_request ** subs, unsigned i
 			ssd->channel_head[location->channel].chip_head[location->chip].current_time = ssd->current_time;
 			ssd->channel_head[location->channel].chip_head[location->chip].next_state = CHIP_DATA_TRANSFER;
 			ssd->channel_head[location->channel].chip_head[location->chip].next_state_predict_time = ssd->current_time + ssd->parameter->time_characteristics.tR;
-			//如果挂起，chip,请求的时间需要加上挂起的时间
-			if(ssd->channel_head[location->channel].chip_head[location->chip].gc_signal == SIG_ERASE_SUSPEND){
-				ssd->channel_head[location->channel].chip_head[location->chip].next_state_predict_time += ssd->parameter->time_characteristics.tERSL;
-				sub->next_state_predict_time += ssd->parameter->time_characteristics.tERSL;
-			}
+			
 			//向文件中输出当前的current time，以及plane号
 			//if (sub->total_request->request_read_num % SAMPLE_SPACE == 0)
 			//{
@@ -933,7 +935,7 @@ Status go_one_step(struct ssd_info * ssd, struct sub_request ** subs, unsigned i
 				//挂起恢复
 				ssd->channel_head[location->channel].chip_head[location->chip].gc_signal = SIG_ERASE_WAIT;
 				//更新时间
-
+				ssd->resume_count++;
 				resume_erase_operation(ssd, location->channel, location->chip);
 
 				//如果时间已经超过挂起延时，就直接完成擦除
@@ -1143,14 +1145,16 @@ Status go_one_step(struct ssd_info * ssd, struct sub_request ** subs, unsigned i
 					//判断是否有suspend read
 					if (ssd->channel_head[location->channel].chip_head[location->chip].gc_signal == SIG_ERASE_SUSPEND)
 					{
+						ssd->channel_head[location->channel].chip_head[location->chip].gc_signal = SIG_ERASE_WAIT;
+						resume_erase_operation(ssd, location->channel, location->chip);
+						ssd->resume_count++;
+
 						//看最后一个子请求完成跳转时，是否超过时间界限
-						if (subs[i]->next_state_predict_time >= ssd->channel_head[location->channel].chip_head[location->chip].erase_cmplt_time)
+						if (subs[i]->next_state_predict_time >= ssd->channel_head[location->channel].chip_head[location->chip].ers_limit)
 						{
-								ssd->channel_head[location->channel].chip_head[location->chip].gc_signal = SIG_ERASE_RESUME;
-								ssd->resume_count++;
+								erase_complete(ssd, location->channel, location->chip);
 						}
-						else
-							ssd->channel_head[location->channel].chip_head[location->chip].gc_signal = SIG_ERASE_WAIT;
+						
 					}
 				}
 				//更新channel/chip的时间线
