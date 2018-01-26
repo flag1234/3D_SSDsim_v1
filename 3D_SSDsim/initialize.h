@@ -321,7 +321,6 @@ struct chip_info{
 	unsigned int block_num_plane;       //indicate how many blocks in a plane
 	unsigned int page_num_block;        //indicate how many pages in a block
 	unsigned int subpage_num_page;      //indicate how many subpage in a page
-	unsigned int ers_limit;             //The number of times each block in the chip can be erased
 	unsigned int token;                 //In the dynamic allocation, in order to prevent each assignment in the first die need to maintain a token, each time from the token referred to the location of the distribution
 	
 	int current_state;                  //chip has serveral states, including idle, command/address transfer,data transfer,unknown
@@ -335,6 +334,7 @@ struct chip_info{
 	__int64 erase_rest_time;
 	__int64 erase_suspend_begin_time;
 	__int64 erase_suspend_end_time;
+	__int64 ers_limit;             //The number of times each block in the chip can be erased
 	int suspend_flag;
 	struct suspend_location *suspend_location;
 

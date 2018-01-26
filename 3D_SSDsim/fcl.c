@@ -1261,16 +1261,17 @@ Status services_2_write(struct ssd_info * ssd, unsigned int channel)
 					if ((ssd->channel_head[channel].chip_head[chip_token].current_state == CHIP_IDLE) || ((ssd->channel_head[channel].chip_head[chip_token].next_state == CHIP_IDLE) && (ssd->channel_head[channel].chip_head[chip_token].next_state_predict_time <= ssd->current_time)))
 					{
 						ssd->channel_head[channel].token = (ssd->channel_head[channel].token + 1) % ssd->parameter->chip_channel[channel];  //The current chip is busy and jumps to the next chip execution
-						if(ssd->channel_head[channel].chip_head[chip_token].suspend_flag == 0 && 
-							ssd->channel_head[channel].chip_head[chip_token].gc_signal != SIG_NORMAL){//如果这个chip未挂起过,不能写
-							if (ssd->channel_head[channel].subs_r_head == NULL){//如果该channel上没有读请求，就把挂起解除
-								resume_erase_operation(ssd, channel, chip_token);
-								
-							}
-							//else{//如果有，就跳过
-								//continue;
+						if(ssd->channel_head[channel].chip_head[chip_token].gc_signal != SIG_NORMAL){//表示正在擦除过程
+							//如果擦除完成，需要结束挂起
+							if (ssd->channel_head[channel].chip_head[chip_token].gc_signal == SIG_ERASE_WAIT && ssd->current_time >= ssd->channel_head[channel].chip_head[chip_token].erase_cmplt_time)
+								erase_complete(ssd, channel, chip_token);
+							
+							
 							continue;
 						}
+						
+						
+						
 								
 					
 						if (dynamic_advanced_process(ssd, channel, chip_token) == NULL){

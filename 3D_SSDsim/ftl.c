@@ -1038,12 +1038,14 @@ int gc_direct_erase(struct ssd_info *ssd, unsigned int channel, unsigned int chi
 	//判断是否有suspend命令，有次命令则不能擦除，要挂起擦除操作，等待恢复
 	if ((ssd->parameter->advanced_commands&AD_ERASE_SUSPEND_RESUME) == AD_ERASE_SUSPEND_RESUME)
 	{
+		if (channel == 0 && chip == 1 && (erase_block[1] == 1591 || erase_block[0] == 1591))
+			printf("2\n");
 		//1.使用了suspend命令，首先更改chip上的suspend请求状态，用于检测是否有suspend请求到来
 		ssd->channel_head[channel].chip_head[chip].gc_signal = SIG_ERASE_WAIT;
 		ssd->channel_head[channel].chip_head[chip].erase_begin_time = ssd->channel_head[channel].next_state_predict_time;
 		ssd->channel_head[channel].chip_head[chip].erase_suspend_end_time = ssd->channel_head[channel].next_state_predict_time;
 		ssd->channel_head[channel].chip_head[chip].erase_rest_time = ssd->parameter->time_characteristics.tBERS;
-		ssd->channel_head[channel].chip_head[chip].ers_limit= ssd->channel_head[channel].next_state_predict_time + ssd->parameter->time_characteristics.tBERS + ssd->parameter->time_characteristics.tERSL;
+		ssd->channel_head[channel].chip_head[chip].ers_limit = ssd->channel_head[channel].next_state_predict_time + (__int64)ssd->parameter->time_characteristics.tBERS + (__int64)ssd->parameter->time_characteristics.tERSL;
 		ssd->channel_head[channel].chip_head[chip].erase_cmplt_time = ssd->channel_head[channel].chip_head[chip].ers_limit;
 		ssd->channel_head[channel].chip_head[chip].suspend_flag = 0;
 
@@ -1289,6 +1291,8 @@ struct ssd_info * suspend_erase_pre(struct ssd_info * ssd, unsigned int channel,
 
 	//3.挂载chip上
 	ssd->channel_head[channel].chip_head[chip].suspend_location = location;
+	if (location->channel == 0 && location->chip == 1 && (location->block[1] == 1591 || location->block[0] == 1591))
+		printf("1\n");
 	return ssd;
 }
 
