@@ -397,8 +397,6 @@ struct ssd_info * insert2buffer(struct ssd_info *ssd, unsigned int lpn, int stat
 		ssd->dram->buffer->buffer_head = new_node;
 		new_node->LRU_link_pre = NULL;
 		insert_status = avlTreeAdd(ssd->dram->buffer, (TREE_NODE *)new_node);
-		if (insert_status == 0)
-			printf("1\n");
 		ssd->dram->buffer->buffer_sector_count += sector_count;
 		ssd->dram->buffer->write_hit++;
 	}

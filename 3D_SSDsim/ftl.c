@@ -1038,8 +1038,8 @@ int gc_direct_erase(struct ssd_info *ssd, unsigned int channel, unsigned int chi
 	//判断是否有suspend命令，有次命令则不能擦除，要挂起擦除操作，等待恢复
 	if ((ssd->parameter->advanced_commands&AD_ERASE_SUSPEND_RESUME) == AD_ERASE_SUSPEND_RESUME)
 	{
-		if (channel == 0 && chip == 1 && (erase_block[1] == 1591 || erase_block[0] == 1591))
-			printf("2\n");
+		//if (channel == 0 && chip == 1 && (erase_block[1] == 1591 || erase_block[0] == 1591))
+			//printf("2\n");
 		//1.使用了suspend命令，首先更改chip上的suspend请求状态，用于检测是否有suspend请求到来
 		ssd->channel_head[channel].chip_head[chip].gc_signal = SIG_ERASE_WAIT;
 		ssd->channel_head[channel].chip_head[chip].erase_begin_time = ssd->channel_head[channel].next_state_predict_time;
@@ -1291,8 +1291,8 @@ struct ssd_info * suspend_erase_pre(struct ssd_info * ssd, unsigned int channel,
 
 	//3.挂载chip上
 	ssd->channel_head[channel].chip_head[chip].suspend_location = location;
-	if (location->channel == 0 && location->chip == 1 && (location->block[1] == 1591 || location->block[0] == 1591))
-		printf("1\n");
+	//if (location->channel == 0 && location->chip == 1 && (location->block[1] == 1591 || location->block[0] == 1591))
+		//printf("1\n");
 	return ssd;
 }
 
@@ -1341,7 +1341,7 @@ Status erase_complete(struct ssd_info * ssd, unsigned int channel, unsigned int 
 
 struct ssd_info * suspend_erase_operation(struct ssd_info * ssd, unsigned int channel, unsigned int chip, unsigned int die)
 {
-	long long suspend_begin_time, suspend_end_time;
+	long long suspend_begin_time = 0, suspend_end_time = 0;
 	unsigned int flag = 0, j = 0;
 	struct suspend_location * location = NULL;
 
