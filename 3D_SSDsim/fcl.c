@@ -384,6 +384,7 @@ Status services_2_r_wait(struct ssd_info * ssd, unsigned int channel)
 {
 	struct sub_request ** sub_place = NULL;
 	unsigned int sub_r_req_count, i ,chip;
+	int ad_flag = 1;
 	//unsigned int * erase_block;
 
 	sub_place = (struct sub_request **)malloc(ssd->parameter->plane_die * PAGE_INDEX * sizeof(struct sub_request *));
@@ -443,21 +444,26 @@ Status services_2_r_wait(struct ssd_info * ssd, unsigned int channel)
 			if ((ssd->parameter->advanced_commands&AD_ONESHOT_READ) == AD_ONESHOT_READ && (ssd->parameter->advanced_commands&AD_MUTLIPLANE) == AD_MUTLIPLANE)
 			{
 				sub_r_req_count = find_r_wait_sub_request(ssd, channel, chip, sub_place, ONE_SHOT_READ_MUTLI_PLANE);
+				ad_flag = 0;
 			}
 			//判断能否用one shot read高级命令完成
 			if ((ssd->parameter->advanced_commands&AD_ONESHOT_READ) == AD_ONESHOT_READ)
 			{
 				sub_r_req_count = find_r_wait_sub_request(ssd, channel, chip, sub_place, ONE_SHOT_READ);
+				ad_flag = 0;
 			}
 		}
 		//判断能否用mutli plane高级命令完成
 		if ((ssd->parameter->advanced_commands&AD_MUTLIPLANE) == AD_MUTLIPLANE)
 		{
 			sub_r_req_count = find_r_wait_sub_request(ssd, channel, chip, sub_place, MUTLI_PLANE);
+			ad_flag = 0;
 		}
 
-		//若不能，表示所有的高级命令都不可行，则去执行普通的读请求,若普通的读请求未找到，则返回，本chip无有效读请求执行
-		sub_r_req_count = find_r_wait_sub_request(ssd, channel, chip, sub_place, NORMAL);
+		if (ad_flag == 1){//若不能，表示所有的高级命令都不可行，则去执行普通的读请求,若普通的读请求未找到，则返回，本chip无有效读请求执行
+			sub_r_req_count = find_r_wait_sub_request(ssd, channel, chip, sub_place, NORMAL);
+		}
+
 		if (sub_r_req_count == 1)
 		{
 			ssd->channel_head[channel].channel_busy_flag = 1;
@@ -474,14 +480,17 @@ Status services_2_r_wait(struct ssd_info * ssd, unsigned int channel)
 		{
 			if (sub_r_req_count != 0)
 			{
-				//判断找到的读子请求里面有没有读挂起的块
+				//判断找到的读子请求里面有没有读挂起的chip
 				for (int bn = 0; bn < sub_r_req_count; bn++){
-					if((sub_place[bn]->location->plane == ssd->channel_head[channel].chip_head[chip].suspend_location->plane[0] && sub_place[bn]->location->block == ssd->channel_head[channel].chip_head[chip].suspend_location->block[0]) ||
-					   (sub_place[bn]->location->block == ssd->channel_head[channel].chip_head[chip].suspend_location->block[1] && sub_place[bn]->location->block == ssd->channel_head[channel].chip_head[chip].suspend_location->block[1])){
+					//if((sub_place[bn]->location->plane == ssd->channel_head[channel].chip_head[chip].suspend_location->plane[0] && sub_place[bn]->location->block == ssd->channel_head[channel].chip_head[chip].suspend_location->block[0]) ||
+						//(sub_place[bn]->location->plane == ssd->channel_head[channel].chip_head[chip].suspend_location->plane[1] && sub_place[bn]->location->block == ssd->channel_head[channel].chip_head[chip].suspend_location->block[1])){
+					if (sub_place[bn]->location->chip == chip){
 						suspend_flag = 1;
 						break;
 					}
 				}
+				//if (ssd->channel_head[0].chip_head[1].gc_signal == SIG_ERASE_SUSPEND && ssd->channel_head[channel].chip_head[chip].suspend_location->block[0] == 1066 && ssd->channel_head[channel].chip_head[chip].suspend_location->block[1] == 1577)
+					//printf("1\n");
 				//更改挂起状态
 				if(suspend_flag == 1){
 					if (ssd->channel_head[channel].chip_head[chip].gc_signal == SIG_ERASE_WAIT)
@@ -508,9 +517,12 @@ Status services_2_r_wait(struct ssd_info * ssd, unsigned int channel)
 						}
 					}
 					else{
-						printf("read block that not suspend\n");
-						getchar();
+						//printf("read block that not suspend\n");
+						printf("need to wait, one of the pair may be suspend\n");
+						//getchar();
 					}
+					//if (ssd->channel_head[0].chip_head[1].gc_signal == SIG_ERASE_SUSPEND && ssd->channel_head[channel].chip_head[chip].suspend_location->block[0] == 1066 && ssd->channel_head[channel].chip_head[chip].suspend_location->block[1] == 1577)
+						//printf("1\n");
 					/*
 					//如果已经是挂起状态了，则恢复
 					else if (ssd->channel_head[channel].chip_head[chip].gc_signal == SIG_ERASE_SUSPEND)

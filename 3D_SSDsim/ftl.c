@@ -1371,7 +1371,7 @@ Status resume_erase_operation(struct ssd_info * ssd, unsigned int channel, unsig
 		ssd->channel_head[resume_location->channel].chip_head[resume_location->chip].erase_cmplt_time += (ssd->channel_head[resume_location->channel].chip_head[resume_location->chip].erase_suspend_end_time - ssd->channel_head[resume_location->channel].chip_head[resume_location->chip].erase_suspend_begin_time);
 		
 		//ssd->channel_head[resume_location->channel].chip_head[resume_location->chip].suspend_flag = 0;
-		ssd->resume_count++;
+		//ssd->resume_count++;
 		return SUCCESS;
 	}
 	else
