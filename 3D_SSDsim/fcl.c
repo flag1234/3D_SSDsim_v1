@@ -919,6 +919,8 @@ Status go_one_step(struct ssd_info * ssd, struct sub_request ** subs, unsigned i
 			*The state of the deal with the channel, chip, so channel, chip current state into CHANNEL_DATA_TRANSFER, CHIP_DATA_TRANSFER
 			*The next state is CHANNEL_IDLE, CHIP_IDLE.
 			***************************************************************************************************************/
+			//if(ssd->request_lz_count == 1706461 && )
+				//printf("2\n");
 			sub->current_time = ssd->current_time;
 			sub->current_state = SR_R_DATA_TRANSFER;
 			sub->next_state = SR_COMPLETE;
@@ -959,7 +961,9 @@ Status go_one_step(struct ssd_info * ssd, struct sub_request ** subs, unsigned i
 			//更新对应的表项
 			ssd->dram->ph[sub->ppn].near_hit_count ++;
 			ssd->dram->ph[sub->ppn].near_hit_time = sub->complete_time;
-			
+
+			if(ssd->channel_head[1].current_state == 7 && ssd->channel_head[1].current_time == 27117684917560)
+				printf("1\n");
 			break;
 		}
 		case SR_W_TRANSFER:
@@ -1179,6 +1183,8 @@ Status go_one_step(struct ssd_info * ssd, struct sub_request ** subs, unsigned i
 				ssd->channel_head[location->channel].chip_head[location->chip].current_time = ssd->current_time;
 				ssd->channel_head[location->channel].chip_head[location->chip].next_state = CHIP_IDLE;
 				ssd->channel_head[location->channel].chip_head[location->chip].next_state_predict_time = subs[i]->next_state_predict_time;
+				if (ssd->channel_head[1].current_state == 7 && ssd->channel_head[1].current_time == 27117684917560)
+					printf("1\n");
 				break;
 			}
 			default:  return ERROR;

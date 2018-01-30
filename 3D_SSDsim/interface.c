@@ -56,6 +56,7 @@ int get_requests(struct ssd_info *ssd)
 	struct request *request1;
 	int flag = 1;
 	long filepoint;
+	struct sub_request *test = NULL;
 	__int64 time_t;
 	__int64 nearest_event_time;
 
@@ -101,6 +102,17 @@ int get_requests(struct ssd_info *ssd)
 	lsn = lsn%large_lsn;
 
 	nearest_event_time = find_nearest_event(ssd);  //Find the time of the latest event
+
+	for (int p = 0; p < 2; p++){
+		test = ssd->channel_head[p].subs_r_head;
+		while (test != NULL){
+			test->next_state;
+			test->next_state_predict_time;
+			test = test->next_node;
+		}
+		
+	}
+		
 
 
 	/**********************************************************************
