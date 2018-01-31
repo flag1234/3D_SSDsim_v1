@@ -460,7 +460,7 @@ Status services_2_r_wait(struct ssd_info * ssd, unsigned int channel)
 			ad_flag = 0;
 		}
 
-		if (ad_flag == 1){//若不能，表示所有的高级命令都不可行，则去执行普通的读请求,若普通的读请求未找到，则返回，本chip无有效读请求执行
+		if (ad_flag == 1 || (ad_flag == 0 && sub_r_req_count == 0)){//若不能，表示所有的高级命令都不可行，则去执行普通的读请求,若普通的读请求未找到，则返回，本chip无有效读请求执行
 			sub_r_req_count = find_r_wait_sub_request(ssd, channel, chip, sub_place, NORMAL);
 		}
 
@@ -820,8 +820,10 @@ Status go_one_step(struct ssd_info * ssd, struct sub_request ** subs, unsigned i
 	long long read_time = 0;
 	long long time = 0;
 	unsigned int plane_number = 0;
+	int temp_state = -1;
 
 	struct sub_request * sub = NULL;
+	struct sub_request * test = NULL;
 	struct local * location = NULL;
 
 	for (i = 0; i < subs_count; i++)
@@ -875,6 +877,7 @@ Status go_one_step(struct ssd_info * ssd, struct sub_request ** subs, unsigned i
 			//如果挂起，chip,请求的时间需要加上挂起的时间
 			if(ssd->channel_head[location->channel].chip_head[location->chip].gc_signal == SIG_ERASE_SUSPEND){
 				ssd->channel_head[location->channel].chip_head[location->chip].next_state_predict_time += ssd->parameter->time_characteristics.tERSL;
+				ssd->channel_head[location->channel].next_state_predict_time += ssd->parameter->time_characteristics.tERSL;
 				sub->next_state_predict_time += ssd->parameter->time_characteristics.tERSL;
 			}
 
@@ -937,6 +940,8 @@ Status go_one_step(struct ssd_info * ssd, struct sub_request ** subs, unsigned i
 			ssd->channel_head[location->channel].next_state = CHANNEL_IDLE;
 			ssd->channel_head[location->channel].next_state_predict_time = sub->next_state_predict_time;
 
+			temp_state = ssd->channel_head[location->channel].chip_head[location->chip].current_state;
+
 			ssd->channel_head[location->channel].chip_head[location->chip].current_state = CHIP_DATA_TRANSFER;
 			ssd->channel_head[location->channel].chip_head[location->chip].current_time = ssd->current_time;
 			ssd->channel_head[location->channel].chip_head[location->chip].next_state = CHIP_IDLE;
@@ -964,6 +969,16 @@ Status go_one_step(struct ssd_info * ssd, struct sub_request ** subs, unsigned i
 
 			if(ssd->channel_head[1].current_state == 7 && ssd->channel_head[1].current_time == 27117684917560)
 				printf("1\n");
+
+			for (int p = 1; p < 2; p++){
+				test = ssd->channel_head[p].subs_r_head;
+				while (test != NULL){
+					test->next_state;
+					test->next_state_predict_time;
+					test = test->next_node;
+				}
+
+			}
 			break;
 		}
 		case SR_W_TRANSFER:
@@ -1017,8 +1032,12 @@ Status go_one_step(struct ssd_info * ssd, struct sub_request ** subs, unsigned i
 				for (i = 0; i < subs_count; i++)
 				{
 					//更新子请求的时间线，地址的传输是串行的
-					if (i == 0)
-						subs[i]->current_time = ssd->current_time;
+					if (i == 0){
+						if (ssd->channel_head[location->channel].chip_head[location->chip].gc_signal == SIG_ERASE_SUSPEND)
+							subs[i]->current_time = ssd->current_time + ssd->parameter->time_characteristics.tERSL;
+						else
+							subs[i]->current_time = ssd->current_time;
+					}
 					else
 						subs[i]->current_time = subs[i - 1]->next_state_predict_time;
 
@@ -1050,6 +1069,12 @@ Status go_one_step(struct ssd_info * ssd, struct sub_request ** subs, unsigned i
 				ssd->channel_head[location->channel].chip_head[location->chip].next_state = CHIP_READ_BUSY;
 				ssd->channel_head[location->channel].chip_head[location->chip].next_state_predict_time = subs[i]->next_state_predict_time;
 
+				/*
+				if (ssd->channel_head[location->channel].chip_head[location->chip].gc_signal == SIG_ERASE_SUSPEND){
+					ssd->channel_head[location->channel].chip_head[location->chip].next_state_predict_time += ssd->parameter->time_characteristics.tERSL;
+					ssd->channel_head[location->channel].next_state_predict_time += ssd->parameter->time_characteristics.tERSL;
+					sub->next_state_predict_time += ssd->parameter->time_characteristics.tERSL;
+				}*/
 
 				break;
 			}
