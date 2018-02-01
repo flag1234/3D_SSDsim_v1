@@ -226,8 +226,8 @@ int get_requests(struct ssd_info *ssd)
 	//printf("%d\n", ssd->request_queue_length);
 
 
-	//if (ssd->request_lz_count == 20221)
-		//printf("lz\n");
+	if (ssd->request_lz_count == 1894075)
+		printf("lz\n");
 	
 	/*
 	if (time_t == 109726921875 && lsn == 618111)
@@ -268,7 +268,9 @@ __int64 find_nearest_event(struct ssd_info *ssd)
 	__int64 time = 0x7fffffffffffffff;
 	__int64 time1 = 0x7fffffffffffffff;
 	__int64 time2 = 0x7fffffffffffffff;
+	__int64 time3 = 0x7fffffffffffffff;
 	__int64 temp_time = 0x7fffffffffffffff;
+
 
 	for (i = 0; i<ssd->parameter->channel_number; i++)
 	{
@@ -280,8 +282,9 @@ __int64 find_nearest_event(struct ssd_info *ssd)
 		{
 			if ((ssd->channel_head[i].chip_head[j].next_state == CHIP_IDLE) || (ssd->channel_head[i].chip_head[j].next_state == CHIP_DATA_TRANSFER)){
 				//如果是挂起的块，先将时间推后方便读入trace
-				if(ssd->channel_head[i].chip_head[j].gc_signal != SIG_NORMAL)
+				if (ssd->channel_head[i].chip_head[j].gc_signal != SIG_NORMAL){
 					temp_time = ssd->channel_head[i].chip_head[j].erase_cmplt_time;
+				}
 				else
 					temp_time = ssd->channel_head[i].chip_head[j].next_state_predict_time;
 
@@ -289,6 +292,15 @@ __int64 find_nearest_event(struct ssd_info *ssd)
 					if (ssd->channel_head[i].chip_head[j].next_state_predict_time>ssd->current_time)
 						time2 = ssd->channel_head[i].chip_head[j].next_state_predict_time;
 			}
+
+			if (ssd->channel_head[i].chip_head[j].gc_signal != SIG_NORMAL && ssd->request_queue_length >= ssd->parameter->queue_length){//主要为了解决因挂起导致的找不到最近事件的问题
+				if (ssd->channel_head[i].chip_head[j].next_state == CHIP_READ_BUSY)
+					if (time3 > ssd->channel_head[i].chip_head[j].next_state_predict_time)
+						if (ssd->channel_head[i].chip_head[j].next_state_predict_time > ssd->current_time)
+							time3 = ssd->channel_head[i].chip_head[j].next_state_predict_time;
+
+			}
+			
 		}
 	}
 
@@ -299,7 +311,9 @@ __int64 find_nearest_event(struct ssd_info *ssd)
 	*A/B/C all not meet，return 0x7fffffffffffffff,means channel and chip is idle
 	*****************************************************************************************************/
 	time = (time1>time2) ? time2 : time1;
-	if (time == 2966636776340)
-		printf("time end\n");
+	
+	if (time1 == 0x7fffffffffffffff && time2 == 0x7fffffffffffffff)
+		time = time3;
+		
 	return time;
 }

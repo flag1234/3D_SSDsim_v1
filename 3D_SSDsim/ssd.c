@@ -52,7 +52,7 @@ char *parameters_file[3] =
 };
 */
 //trace 路径名
-
+/*
 char *trace_file[15] =
 {
 	"exchange.ascii", "fiu_web.ascii", "hm0.ascii", "hm1.ascii", "proj0.ascii", "proj3.ascii", "rsrch0.ascii", "src0.ascii", "src1.ascii", 
@@ -121,11 +121,11 @@ char *result_file_size[3][15] =
 	//"ts0_TSA_size.dat", "usr0_TSA_size.dat", "vps_TSA_size.dat", "w1_TSA_size.dat", "w2_TSA_size.dat", "wdev0_TSA_size.dat"
 	//}
 
-};
+};*/
 char *parameters_file = "page.parameters";
-//char *trace_file = "stg1.ascii";
-//char *result_file_ex = "stg1_ex.dat";
-//char *result_file_statistic = "stg1.dat";
+char *trace_file = "proj0.ascii";
+char *result_file_ex = "proj0_ex.dat";
+char *result_file_statistic = "proj0.dat";
 
 
 /********************************************************************************************************************************
@@ -147,8 +147,8 @@ void main()
 	//for (j = 0; j < 1; j++)
 	//{
 		j = 0;
-		//for (i = 0; i < 1; i++)
-		for (i = 0; i < 15; i++)
+		for (i = 0; i < 1; i++)
+		//for (i = 0; i < 15; i++)
 		{
 			//j = 1;
 			//i = 1;
@@ -162,14 +162,14 @@ void main()
 			strcpy_s(ssd->parameterfilename, 50, "page.parameters");
 
 			//输入trace文件参数，输出文件名
-			strcpy_s(ssd->tracefilename, 50, trace_file[i]);
-			strcpy_s(ssd->outputfilename, 50, result_file_ex[j][i]);
-			strcpy_s(ssd->statisticfilename, 50, result_file_statistic[j][i]);
-			strcpy_s(ssd->statistic_time_filename, 50, result_file_die[j][i]);
-			strcpy_s(ssd->statistic_size_filename, 50, result_file_size[j][i]);
-			//strcpy_s(ssd->tracefilename, 50, trace_file);
-			//strcpy_s(ssd->outputfilename, 50, result_file_ex);
-			//strcpy_s(ssd->statisticfilename, 50, result_file_statistic);
+			//strcpy_s(ssd->tracefilename, 50, trace_file[i]);
+			//strcpy_s(ssd->outputfilename, 50, result_file_ex[j][i]);
+			//strcpy_s(ssd->statisticfilename, 50, result_file_statistic[j][i]);
+			//strcpy_s(ssd->statistic_time_filename, 50, result_file_die[j][i]);
+			//strcpy_s(ssd->statistic_size_filename, 50, result_file_size[j][i]);
+			strcpy_s(ssd->tracefilename, 50, trace_file);
+			strcpy_s(ssd->outputfilename, 50, result_file_ex);
+			strcpy_s(ssd->statisticfilename, 50, result_file_statistic);
 
 			printf("tracefile:%s begin simulate-------------------------\n", ssd->tracefilename);
 			//getchar();
@@ -636,7 +636,11 @@ void trace_output(struct ssd_info* ssd){
 
 				while (req->subs != NULL)
 				{
+					
 					tmp = req->subs;
+					if (tmp->lpn == 129585 || tmp->lpn == 129586)
+						printf("1\n");
+
 					req->subs = tmp->next_subs;
 					if (tmp->update != NULL)
 					{

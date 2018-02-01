@@ -329,6 +329,8 @@ Status services_2_r_complete(struct ssd_info * ssd)
 		p = NULL;
 		while (sub != NULL)
 		{
+			if (sub->lpn == 129585 || sub->lpn == 129586)
+				printf("1\n");
 			if ((sub->current_state == SR_COMPLETE) || ((sub->next_state == SR_COMPLETE) && (sub->next_state_predict_time <= ssd->current_time)))
 			{
 				
@@ -444,23 +446,32 @@ Status services_2_r_wait(struct ssd_info * ssd, unsigned int channel)
 			if ((ssd->parameter->advanced_commands&AD_ONESHOT_READ) == AD_ONESHOT_READ && (ssd->parameter->advanced_commands&AD_MUTLIPLANE) == AD_MUTLIPLANE)
 			{
 				sub_r_req_count = find_r_wait_sub_request(ssd, channel, chip, sub_place, ONE_SHOT_READ_MUTLI_PLANE);
-				ad_flag = 0;
+				if (sub_r_req_count == (PAGE_INDEX*ssd->parameter->plane_die)){
+					ad_flag = 0;
+				}
+				
 			}
 			//判断能否用one shot read高级命令完成
 			if ((ssd->parameter->advanced_commands&AD_ONESHOT_READ) == AD_ONESHOT_READ)
 			{
 				sub_r_req_count = find_r_wait_sub_request(ssd, channel, chip, sub_place, ONE_SHOT_READ);
-				ad_flag = 0;
+				if (sub_r_req_count == PAGE_INDEX){
+					ad_flag = 0;
+				}
+				
 			}
 		}
 		//判断能否用mutli plane高级命令完成
 		if ((ssd->parameter->advanced_commands&AD_MUTLIPLANE) == AD_MUTLIPLANE)
 		{
 			sub_r_req_count = find_r_wait_sub_request(ssd, channel, chip, sub_place, MUTLI_PLANE);
-			ad_flag = 0;
+			if ((sub_r_req_count > 1) && (sub_r_req_count <= ssd->parameter->plane_die)){
+				ad_flag = 0;
+			}
+			
 		}
 
-		if (ad_flag == 1 || (ad_flag == 0 && sub_r_req_count == 0)){//若不能，表示所有的高级命令都不可行，则去执行普通的读请求,若普通的读请求未找到，则返回，本chip无有效读请求执行
+		if (ad_flag == 1){//若不能，表示所有的高级命令都不可行，则去执行普通的读请求,若普通的读请求未找到，则返回，本chip无有效读请求执行
 			sub_r_req_count = find_r_wait_sub_request(ssd, channel, chip, sub_place, NORMAL);
 		}
 
@@ -1303,11 +1314,14 @@ Status services_2_write(struct ssd_info * ssd, unsigned int channel)
 				{
 					if ((ssd->channel_head[channel].chip_head[chip_token].current_state == CHIP_IDLE) || ((ssd->channel_head[channel].chip_head[chip_token].next_state == CHIP_IDLE) && (ssd->channel_head[channel].chip_head[chip_token].next_state_predict_time <= ssd->current_time)))
 					{
-						ssd->channel_head[channel].token = (ssd->channel_head[channel].token + 1) % ssd->parameter->chip_channel[channel];  //The current chip is busy and jumps to the next chip execution
+						
 						if(ssd->channel_head[channel].chip_head[chip_token].gc_signal != SIG_NORMAL){//表示正在擦除过程(可能挂起了)
 							//如果擦除完成，需要结束挂起
-							if (ssd->channel_head[channel].chip_head[chip_token].gc_signal == SIG_ERASE_WAIT && ssd->current_time >= ssd->channel_head[channel].chip_head[chip_token].erase_cmplt_time)
+							if (ssd->channel_head[channel].chip_head[chip_token].gc_signal == SIG_ERASE_WAIT && ssd->current_time >= ssd->channel_head[channel].chip_head[chip_token].erase_cmplt_time){
 								erase_complete(ssd, channel, chip_token);
+								continue;
+							}
+								
 							
 							if (ssd->channel_head[channel].subs_r_head == NULL && ssd->request_queue_length >= ssd->parameter->queue_length)//如果没有读请求，写请求就会continue。当队列满且全是写的情况下就会死循环空转，因为时间无法推进，所以写请求的处理也要有时间推进
 								erase_complete(ssd, channel, chip_token);
@@ -1324,11 +1338,12 @@ Status services_2_write(struct ssd_info * ssd, unsigned int channel)
 						}
 						else{
 							ssd->channel_head[channel].channel_busy_flag = 1;
-							if(ssd->channel_head[channel].chip_head[chip_token].gc_signal == SIG_ERASE_SUSPEND || ssd->channel_head[channel].chip_head[chip_token].gc_signal == SIG_ERASE_RESUME)
-								ssd->suspend_write_count++;
+							//if(ssd->channel_head[channel].chip_head[chip_token].gc_signal == SIG_ERASE_SUSPEND || ssd->channel_head[channel].chip_head[chip_token].gc_signal == SIG_ERASE_RESUME)
+								//ssd->suspend_write_count++;
 						}
 							
 					}
+					ssd->channel_head[channel].token = (ssd->channel_head[channel].token + 1) % ssd->parameter->chip_channel[channel];  //The current chip is busy and jumps to the next chip execution
 				}
 				
 						
