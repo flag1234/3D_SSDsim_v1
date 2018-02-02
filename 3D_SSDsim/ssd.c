@@ -638,8 +638,8 @@ void trace_output(struct ssd_info* ssd){
 				{
 					
 					tmp = req->subs;
-					if (tmp->lpn == 129585 || tmp->lpn == 129586)
-						printf("1\n");
+					//if (tmp->lpn == 129585 || tmp->lpn == 129586)
+						//printf("1\n");
 
 					req->subs = tmp->next_subs;
 					if (tmp->update != NULL)

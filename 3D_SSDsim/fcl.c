@@ -329,8 +329,8 @@ Status services_2_r_complete(struct ssd_info * ssd)
 		p = NULL;
 		while (sub != NULL)
 		{
-			if (sub->lpn == 129585 || sub->lpn == 129586)
-				printf("1\n");
+			//if (sub->lpn == 129585 || sub->lpn == 129586)
+				//printf("1\n");
 			if ((sub->current_state == SR_COMPLETE) || ((sub->next_state == SR_COMPLETE) && (sub->next_state_predict_time <= ssd->current_time)))
 			{
 				
@@ -512,7 +512,7 @@ Status services_2_r_wait(struct ssd_info * ssd, unsigned int channel)
 						//修改时间
 						if(ssd->current_time + ssd->parameter->time_characteristics.tERSL >= ssd->channel_head[channel].chip_head[chip].ers_limit){
 							//不能挂起，擦除收尾
-							ssd->current_time = ssd->channel_head[channel].chip_head[chip].ers_limit;
+							//ssd->current_time = ssd->channel_head[channel].chip_head[chip].ers_limit;
 							erase_complete(ssd, channel, chip);
 						}
 						else{
