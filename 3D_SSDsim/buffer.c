@@ -131,18 +131,21 @@ struct ssd_info *handle_buffer(struct ssd_info *ssd, struct request *req)
 			check_write = check_w_buff(ssd, lpn, state, NULL, req);
 			//检查读buffer
 			//if(check_write == FALSE)
-			check_r_buff(ssd, lpn, state, NULL, req);
+			if(ssd->parameter->read_buffer == 1)
+				check_r_buff(ssd, lpn, state, NULL, req);
 		}
 			
 		else if (req->operation == WRITE){
 			//还需要先检查读buffer
-			check_r_buff(ssd, lpn, state, NULL, req);
+			if(ssd->parameter->read_buffer == 1)
+				check_r_buff(ssd, lpn, state, NULL, req);
+
 			ssd = insert2buffer(ssd, lpn, state, NULL, req);
 		}
-		if (ssd->dram->read_buffer->pTreeHeader != NULL && ssd->dram->buffer->pTreeHeader != NULL)
-			check_write = -1;
-		if (ssd->dram->read_buffer->pTreeHeader == NULL)
-			check_write = - 1;
+		//if (ssd->dram->read_buffer->pTreeHeader != NULL && ssd->dram->buffer->pTreeHeader != NULL)
+			//check_write = -1;
+		//if (ssd->dram->read_buffer->pTreeHeader == NULL)
+			//check_write = - 1;
 
 		lpn++;
 	}
@@ -270,16 +273,19 @@ int check_w_buff(struct ssd_info *ssd, unsigned int lpn, int state, struct sub_r
 	key.group = lpn;
 	buffer_node = (struct buffer_group*)avlTreeFind(ssd->dram->buffer, (TREE_NODE *)&key);		// buffer node 
 
-	if (buffer_node == NULL)         //未命中，去flash上读
+	if (buffer_node == NULL)         
 	{
-		ssd->dram->buffer->read_miss_hit++;
-		return FALSE;
-		/*
-		sub_req = NULL;
-		sub_req_state = state;
-		sub_req_size = size(state);
-		sub_req_lpn = lpn;
-		sub_req = creat_sub_request(ssd, sub_req_lpn, sub_req_size, sub_req_state,0, req, READ);*/
+		if(ssd->parameter->read_buffer == 1){//有读buffer时，未命中，先不生成子请求，再检查读buff
+			ssd->dram->buffer->read_miss_hit++;
+			return FALSE;
+		}
+		else{
+			sub_req = NULL;
+			sub_req_state = state;
+			sub_req_size = size(state);
+			sub_req_lpn = lpn;
+			sub_req = creat_sub_request(ssd, sub_req_lpn, sub_req_size, sub_req_state,0, req, READ);
+		}
 	}
 	else
 	{

@@ -52,18 +52,18 @@ char *parameters_file[3] =
 };
 */
 //trace 路径名
-/*
-char *trace_file[15] =
+
+char *trace_file[19] =
 {
 	"exchange.ascii", "fiu_web.ascii", "hm0.ascii", "hm1.ascii", "proj0.ascii", "proj3.ascii", "rsrch0.ascii", "src0.ascii", "src1.ascii", 
-    "ts0.ascii", "usr0.ascii", "vps.ascii", "w1.ascii", "w2.ascii", "wdev0.ascii"
+	"ts0.ascii", "usr0.ascii", "vps.ascii", "w1.ascii", "w2.ascii", "wdev0.ascii", "web2.ascii", "usr2.ascii", "mds1.ascii", "stg1.ascii"
 };
 
 
-char *result_file_statistic[3][15] =
+char *result_file_statistic[3][19] =
 { 
 	{ "exchange.dat", "fiu_web.dat", "hm0.dat", "hm1.dat", "proj0.dat", "proj3.dat", "rsrch0.dat", "src0.dat", "src1.dat",
-	 "ts0.dat", "usr0.dat", "vps.dat", "w1.dat", "w2.dat", "wdev0.dat"
+	"ts0.dat", "usr0.dat", "vps.dat", "w1.dat", "w2.dat", "wdev0.dat", "web2.dat", "usr2.dat", "mds1.dat", "stg1.dat"
 	},
     
 	//{ "exchange.dat", "fiu_web.dat", "hm0.dat", "hm1.dat", "proj0.dat", "proj3.dat", "rsrch0.dat", "src0.dat", "src1.dat",
@@ -76,10 +76,10 @@ char *result_file_statistic[3][15] =
 };
 
 
-char *result_file_ex[3][15] =
+char *result_file_ex[3][19] =
 { 
 	{ "exchange_ex.dat", "fiu_web_ex.dat", "hm0_ex.dat", "hm1_ex.dat", "proj0_ex.dat", "proj3_ex.dat", "rsrch0_ex.dat", "src0_ex.dat", "src1_ex.dat",
-	 "ts0_ex.dat", "usr0_ex.dat", "vps_ex.dat", "w1_ex.dat", "w2_ex.dat", "wdev0_ex.dat"
+	"ts0_ex.dat", "usr0_ex.dat", "vps_ex.dat", "w1_ex.dat", "w2_ex.dat", "wdev0_ex.dat", "web2_ex.dat", "usr2_ex.dat", "mds1_ex.dat", "stg1_ex.dat"
 	},
 
 	//{ "exchange_OSA_ex.dat", "fiu_web_OSA_ex.dat", "hm0_OSA_ex.dat", "hm1_OSA_ex.dat", "proj0_OSA_ex.dat", "proj3_OSA_ex.dat", "rsrch0_OSA_ex.dat", "src0_OSA_ex.dat", "src1_OSA_ex.dat",
@@ -91,11 +91,11 @@ char *result_file_ex[3][15] =
 	//}
 };
 
-char *result_file_die[3][15] =
+char *result_file_die[3][19] =
 { 
 	
 	{ "exchange_die.dat", "fiu_web_die.dat", "hm0_die.dat", "hm1_die.dat", "proj0_die.dat", "proj3_die.dat", "rsrch0_die.dat", "src0_die.dat", "src1_die.dat",
-	 "ts0_die.dat", "usr0_die.dat", "vps_die.dat", "w1_die.dat", "w2_die.dat", "wdev0_die.dat"
+	"ts0_die.dat", "usr0_die.dat", "vps_die.dat", "w1_die.dat", "w2_die.dat", "wdev0_die.dat", "web2_die.dat", "usr2_die.dat", "mds1_die.dat", "stg1_die.dat"
 	},
 
 	//{ "exchange_OSA_die.dat", "fiu_web_OSA_die.dat", "hm0_OSA_die.dat", "hm1_OSA_die.dat", "proj0_OSA_die.dat", "proj3_OSA_die.dat", "rsrch0_OSA_die.dat", "src0_OSA_die.dat", "src1_OSA_die.dat",
@@ -107,10 +107,10 @@ char *result_file_die[3][15] =
 	//}
 };
 
-char *result_file_size[3][15] =
+char *result_file_size[3][19] =
 {
 	{ "exchange_size.dat", "fiu_web_size.dat", "hm0_size.dat", "hm1_size.dat", "proj0_size.dat", "proj3_size.dat", "rsrch0_size.dat", "src0_size.dat", "src1_size.dat",
-	 "ts0_size.dat", "usr0_size.dat", "vps_size.dat", "w1_size.dat", "w2_size.dat", "wdev0_size.dat"
+	"ts0_size.dat", "usr0_size.dat", "vps_size.dat", "w1_size.dat", "w2_size.dat", "wdev0_size.dat", "web2_size.dat", "usr2_size.dat", "mds1_size.dat", "stg1_size.dat"
 	},
 
 	//{ "exchange_OSA_size.dat", "fiu_web_OSA_size.dat", "hm0_OSA_size.dat", "hm1_OSA_size.dat", "proj0_OSA_size.dat", "proj3_OSA_size.dat", "rsrch0_OSA_size.dat", "src0_OSA_size.dat", "src1_OSA_size.dat",
@@ -121,11 +121,11 @@ char *result_file_size[3][15] =
 	//"ts0_TSA_size.dat", "usr0_TSA_size.dat", "vps_TSA_size.dat", "w1_TSA_size.dat", "w2_TSA_size.dat", "wdev0_TSA_size.dat"
 	//}
 
-};*/
+};
 char *parameters_file = "page.parameters";
-char *trace_file = "proj0.ascii";
-char *result_file_ex = "proj0_ex.dat";
-char *result_file_statistic = "proj0.dat";
+//char *trace_file = "stg1.ascii";
+//char *result_file_ex = "stg1_ex.dat";
+//char *result_file_statistic = "stg1.dat";
 
 
 /********************************************************************************************************************************
@@ -147,8 +147,8 @@ void main()
 	//for (j = 0; j < 1; j++)
 	//{
 		j = 0;
-		for (i = 0; i < 1; i++)
-		//for (i = 0; i < 15; i++)
+		//for (i = 0; i < 1; i++)
+		for (i = 0; i < 19; i++)
 		{
 			//j = 1;
 			//i = 1;
@@ -162,14 +162,14 @@ void main()
 			strcpy_s(ssd->parameterfilename, 50, "page.parameters");
 
 			//输入trace文件参数，输出文件名
-			//strcpy_s(ssd->tracefilename, 50, trace_file[i]);
-			//strcpy_s(ssd->outputfilename, 50, result_file_ex[j][i]);
-			//strcpy_s(ssd->statisticfilename, 50, result_file_statistic[j][i]);
-			//strcpy_s(ssd->statistic_time_filename, 50, result_file_die[j][i]);
-			//strcpy_s(ssd->statistic_size_filename, 50, result_file_size[j][i]);
-			strcpy_s(ssd->tracefilename, 50, trace_file);
-			strcpy_s(ssd->outputfilename, 50, result_file_ex);
-			strcpy_s(ssd->statisticfilename, 50, result_file_statistic);
+			strcpy_s(ssd->tracefilename, 50, trace_file[i]);
+			strcpy_s(ssd->outputfilename, 50, result_file_ex[j][i]);
+			strcpy_s(ssd->statisticfilename, 50, result_file_statistic[j][i]);
+			strcpy_s(ssd->statistic_time_filename, 50, result_file_die[j][i]);
+			strcpy_s(ssd->statistic_size_filename, 50, result_file_size[j][i]);
+			//strcpy_s(ssd->tracefilename, 50, trace_file);
+			//strcpy_s(ssd->outputfilename, 50, result_file_ex);
+			//strcpy_s(ssd->statisticfilename, 50, result_file_statistic);
 
 			printf("tracefile:%s begin simulate-------------------------\n", ssd->tracefilename);
 			//getchar();
@@ -832,10 +832,13 @@ void statistic_output(struct ssd_info *ssd)
 	fprintf(ssd->outputfile,"buffer write hits: %13d\n",ssd->dram->buffer->write_hit);
 	fprintf(ssd->outputfile,"buffer write miss: %13d\n",ssd->dram->buffer->write_miss_hit);
 	fprintf(ssd->outputfile, "\n");
-	fprintf(ssd->outputfile,"read buffer read hits: %13d\n",ssd->dram->read_buffer->read_hit);
-	fprintf(ssd->outputfile,"read buffer read miss: %13d\n",ssd->dram->read_buffer->read_miss_hit);
-	fprintf(ssd->outputfile,"read buffer write hits: %13d\n",ssd->dram->read_buffer->write_hit);
-	fprintf(ssd->outputfile,"read buffer write miss: %13d\n",ssd->dram->read_buffer->write_miss_hit);
+	if (ssd->parameter->read_buffer == 1){
+		fprintf(ssd->outputfile, "read buffer read hits: %13d\n", ssd->dram->read_buffer->read_hit);
+		fprintf(ssd->outputfile, "read buffer read miss: %13d\n", ssd->dram->read_buffer->read_miss_hit);
+		fprintf(ssd->outputfile, "read buffer write hits: %13d\n", ssd->dram->read_buffer->write_hit);
+		fprintf(ssd->outputfile, "read buffer write miss: %13d\n", ssd->dram->read_buffer->write_miss_hit);
+	}
+	
 	
 	fprintf(ssd->outputfile, "update sub request count : %13d\n", ssd->update_sub_request);
 	fprintf(ssd->outputfile, "half page read count : %13d\n", ssd->half_page_read_count);
@@ -909,10 +912,14 @@ void statistic_output(struct ssd_info *ssd)
 	fprintf(ssd->statisticfile,"buffer write hits: %13d\n",ssd->dram->buffer->write_hit);
 	fprintf(ssd->statisticfile,"buffer write miss: %13d\n",ssd->dram->buffer->write_miss_hit);
 	fprintf(ssd->statisticfile, "\n");
-	fprintf(ssd->statisticfile,"read buffer read hits: %13d\n",ssd->dram->read_buffer->read_hit);
-	fprintf(ssd->statisticfile,"read buffer read miss: %13d\n",ssd->dram->read_buffer->read_miss_hit);
-	fprintf(ssd->statisticfile,"read buffer write hits: %13d\n",ssd->dram->read_buffer->write_hit);
-	fprintf(ssd->statisticfile,"read buffer write miss: %13d\n",ssd->dram->read_buffer->write_miss_hit);
+	
+	if (ssd->parameter->read_buffer == 1){
+		fprintf(ssd->statisticfile, "read buffer read hits: %13d\n", ssd->dram->read_buffer->read_hit);
+		fprintf(ssd->statisticfile, "read buffer read miss: %13d\n", ssd->dram->read_buffer->read_miss_hit);
+		fprintf(ssd->statisticfile, "read buffer write hits: %13d\n", ssd->dram->read_buffer->write_hit);
+		fprintf(ssd->statisticfile, "read buffer write miss: %13d\n", ssd->dram->read_buffer->write_miss_hit);
+	}
+	
 	fflush(ssd->statisticfile);
 
 	fclose(ssd->statisticfile);

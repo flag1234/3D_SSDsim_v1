@@ -279,10 +279,11 @@ struct dram_info * initialize_dram(struct ssd_info * ssd)
 	{
 		dram->buffer->max_buffer_sector = (ssd->parameter->dram_capacity / ssd->parameter->subpage_capacity) - (ssd->parameter->plane_die * PAGE_INDEX * ssd->parameter->subpage_page * 5);
 	}
-
-	dram->read_capacity = ssd->parameter->read_capacity;	
-	dram->read_buffer = (tAVLTree *)avlTreeCreate((void*)keyCompareFunc , (void *)freeFunc);
-	dram->read_buffer->max_buffer_sector = ssd->parameter->read_capacity / ssd->parameter->subpage_capacity; 
+	if(ssd->parameter->read_buffer == 1){
+		dram->read_capacity = ssd->parameter->read_capacity;	
+		dram->read_buffer = (tAVLTree *)avlTreeCreate((void*)keyCompareFunc , (void *)freeFunc);
+		dram->read_buffer->max_buffer_sector = ssd->parameter->read_capacity / ssd->parameter->subpage_capacity; 
+	}
 
 	/**********************************************增加高级命令的缓存初始化******************************************************************/
 	//1.为对应的缓存定平衡二叉树
@@ -687,6 +688,8 @@ struct parameter_value *load_parameters(char parameter_file[30])
 		{
 			sscanf(buf+12,"%d",&i);
 			sscanf(buf + next_eql,"%d",&p->chip_channel[i]);            //The number of chips on a channel
+		}else if((res_eql=strcmp(buf,"read buffer")) ==0){
+			sscanf(buf + next_eql,"%d",&p->read_buffer);
 		}else{
 			printf("don't match\t %s\n",buf);
 		}

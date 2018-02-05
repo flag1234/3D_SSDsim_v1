@@ -334,8 +334,8 @@ Status services_2_r_complete(struct ssd_info * ssd)
 			if ((sub->current_state == SR_COMPLETE) || ((sub->next_state == SR_COMPLETE) && (sub->next_state_predict_time <= ssd->current_time)))
 			{
 				
-				
-				insert2readbuffer(ssd, sub);
+				if(ssd->parameter->read_buffer == 1)
+					insert2readbuffer(ssd, sub);
 				if (sub != ssd->channel_head[i].subs_r_head)                         
 				{
 					if (sub == ssd->channel_head[i].subs_r_tail)
@@ -889,7 +889,9 @@ Status go_one_step(struct ssd_info * ssd, struct sub_request ** subs, unsigned i
 			if(ssd->channel_head[location->channel].chip_head[location->chip].gc_signal == SIG_ERASE_SUSPEND){
 				ssd->channel_head[location->channel].chip_head[location->chip].next_state_predict_time += ssd->parameter->time_characteristics.tERSL;
 				ssd->channel_head[location->channel].next_state_predict_time += ssd->parameter->time_characteristics.tERSL;
+				sub->current_time += ssd->parameter->time_characteristics.tERSL;
 				sub->next_state_predict_time += ssd->parameter->time_characteristics.tERSL;
+				sub->begin_time += ssd->parameter->time_characteristics.tERSL;
 			}
 
 			break;
@@ -1044,18 +1046,27 @@ Status go_one_step(struct ssd_info * ssd, struct sub_request ** subs, unsigned i
 				{
 					//更新子请求的时间线，地址的传输是串行的
 					if (i == 0){
-						if (ssd->channel_head[location->channel].chip_head[location->chip].gc_signal == SIG_ERASE_SUSPEND)
+						if (ssd->channel_head[location->channel].chip_head[location->chip].gc_signal == SIG_ERASE_SUSPEND){
 							subs[i]->current_time = ssd->current_time + ssd->parameter->time_characteristics.tERSL;
-						else
+							subs[i]->begin_time = ssd->current_time + ssd->parameter->time_characteristics.tERSL;
+						}
+							
+						else{
 							subs[i]->current_time = ssd->current_time;
+							subs[i]->begin_time = ssd->current_time;
+						}
+							
 					}
-					else
+					else{
 						subs[i]->current_time = subs[i - 1]->next_state_predict_time;
+						subs[i]->begin_time = ssd->current_time;
+					}
+						
 
 					subs[i]->current_state = SR_R_C_A_TRANSFER;
 					subs[i]->next_state = SR_R_READ;
 					subs[i]->next_state_predict_time = subs[i]->current_time + 7 * ssd->parameter->time_characteristics.tWC;
-					subs[i]->begin_time = ssd->current_time;
+					
 
 					//更新地址寄存器
 					ssd->channel_head[subs[i]->location->channel].chip_head[subs[i]->location->chip].die_head[subs[i]->location->die].plane_head[subs[i]->location->plane].add_reg_ppn = subs[i]->ppn;    //将要写入的地址传送到地址寄存器
@@ -1219,8 +1230,7 @@ Status go_one_step(struct ssd_info * ssd, struct sub_request ** subs, unsigned i
 				ssd->channel_head[location->channel].chip_head[location->chip].current_time = ssd->current_time;
 				ssd->channel_head[location->channel].chip_head[location->chip].next_state = CHIP_IDLE;
 				ssd->channel_head[location->channel].chip_head[location->chip].next_state_predict_time = subs[i]->next_state_predict_time;
-				if (ssd->channel_head[1].current_state == 7 && ssd->channel_head[1].current_time == 27117684917560)
-					printf("1\n");
+				
 				break;
 			}
 			default:  return ERROR;

@@ -596,6 +596,7 @@ struct parameter_value{
 	int queue_length;               //Request the length of the queue
 	int update_reqeust_max;		    //request the length of sub request(partial page)
 	int flash_mode;                 //0--slc mode,1--tlc mode
+	int read_buffer;
 
 	struct ac_time_characteristics time_characteristics;
 };
