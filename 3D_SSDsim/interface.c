@@ -222,17 +222,16 @@ int get_requests(struct ssd_info *ssd)
 	}
 
 	ssd->request_lz_count++;
-	//printf("request:%I64u\n", ssd->request_lz_count);
-	//printf("%d\n", ssd->request_queue_length);
 
+	if (ssd->request_lz_count % 5000 == 0 && ssd->request_lz_count / 5000 > 2){//每隔一定周期重新计算
+		k_means(ssd);
+		int page_num = ssd->parameter->page_block*ssd->parameter->block_plane*ssd->parameter->plane_die*ssd->parameter->die_chip*ssd->parameter->chip_num;
+		memset(ssd->dram->ph, 0, sizeof(struct phy_hit) * page_num);
 
-	//if (ssd->request_lz_count == 1894075)
-		//printf("lz\n");
+	}
+		
 	
-	/*
-	if (time_t == 109726921875 && lsn == 618111)
-		printf("lz\n");
-	*/
+	
 
 	if (request1->operation == READ)             //Calculate the average request size ,1 for read 0 for write
 	{

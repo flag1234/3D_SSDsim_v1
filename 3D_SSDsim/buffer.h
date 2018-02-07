@@ -41,3 +41,6 @@ Status allocate_location(struct ssd_info * ssd, struct sub_request *sub_req, uns
 
 struct ssd_info *handle_buffer(struct ssd_info *ssd, struct request *req);
 struct ssd_info *handle_read_cache(struct ssd_info *ssd, struct request *req);
+
+struct ssd_info *k_means(struct ssd_info *ssd);
+

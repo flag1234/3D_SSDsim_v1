@@ -156,6 +156,12 @@ Zuo Lu			2017/10/11		  1.9			Support dynamic OSPA allocation strategy				6173766
 #define OVERFLOW	-3
 typedef int Status;     
 
+
+typedef struct {
+	int val;
+	int group;
+} point_t, *point;
+
 struct ac_time_characteristics{
 	int tPROG;     //program time
 	int tDBSY;     //bummy busy time for two-plane program
@@ -202,6 +208,7 @@ struct ssd_info{
 	int buffer_full_flag;				 //buffer blocking flag:0--unblocking , 1-- blocking
 	int trace_over_flag;				 //the end of trace flag:0-- not ending ,1--ending
 	__int64 request_lz_count;			 //trace request count
+	__int64 read_sub_cnt;
 	unsigned int update_sub_request;
 	unsigned int page_count;
 	int test_count;
@@ -243,6 +250,9 @@ struct ssd_info{
 	unsigned long erase_count;
 	unsigned long direct_erase_count;    //Record invalid blocks that are directly erased
 	__int64 gc_count;
+
+	point k_mean_c[10];//used to record k_means result
+	int k_mean_max[10];
 
 	//Advanced command read and write erase statistics
 	unsigned long m_plane_read_count;
@@ -463,6 +473,7 @@ struct map_info{
 struct phy_hit{
 	unsigned int near_hit_count;
 	unsigned int near_hit_time;
+	unsigned int hit_count;
 };
 
 struct controller_info{

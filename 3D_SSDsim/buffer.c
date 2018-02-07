@@ -30,6 +30,7 @@ Zuo Lu			2017/10/11		  1.9			Support dynamic OSPA allocation strategy				6173766
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
+#include <math.h>
 
 #include "ssd.h"
 #include "initialize.h"
@@ -1437,6 +1438,7 @@ struct sub_request * creat_sub_request(struct ssd_info * ssd, unsigned int lpn, 
 		}
 		if (flag == 0)
 		{
+			ssd->read_sub_cnt++;
 			if (ssd->channel_head[loc->channel].subs_r_tail != NULL)
 			{
 				ssd->channel_head[loc->channel].subs_r_tail->next_node = sub;
@@ -1779,4 +1781,168 @@ Status allocate_location(struct ssd_info * ssd, struct sub_request *sub_req, uns
 		sub_req->update_read_flag = 0;
 	}
 	return SUCCESS;
+}
+
+
+int dist2(point a, point b)
+{
+	int x = a->val > b->val ? (a->val - b->val) : (b->val - a->val);
+	return x;
+}
+
+int nearest(point pt, point cent, int n_cluster, int *d2)
+{
+	int i, min_i = 0;
+	int c;
+	int d, min_d;
+
+
+	for (c = cent, i = 0; i < n_cluster; i++, c++){
+		min_i = pt->group;
+		min_d = HUGE_VAL;
+		for (c = cent, i = 0; i < n_cluster; i++, c++)
+			if (min_d >(d = dist2(c, pt))) {
+			min_d = d;
+			min_i = i;
+			}
+
+	}
+	if (d2)
+		*d2 = min_d;
+	return min_i;
+}
+
+void kpp(point pts, int len, point cent, int n_cent)
+{
+	int i, j;
+	int n_cluster;
+	int sum, *d = malloc(sizeof(int) * len);
+
+	point p, c;
+	cent[0] = pts[rand() % len];
+	for (n_cluster = 1; n_cluster < n_cent; n_cluster++) {
+		sum = 0;
+		for (j = 0, p = pts; j < len; j++, p++){
+			nearest(p, cent, n_cluster, d + j);
+			sum += d[j];
+		}
+		sum = rand(sum);
+		for (j = 0, p = pts; j < len; j++, p++){
+			if ((sum -= d[j]) > 0) continue;
+			cent[n_cluster] = pts[j];
+			break;
+		}
+	}
+	for (j = 0, p = pts; j < len; j++, p++)
+		p->group = nearest(p, cent, n_cluster, 0);
+
+	free(d);
+}
+
+int lloyd(struct ssd_info *ssd, point pts, int len, int n_cluster)
+{
+	int i, j, min_i;
+	int changed;
+
+	point cent = malloc(sizeof(point_t) * n_cluster);
+	point p, c;
+
+	memset(cent, 0, sizeof(point_t) * n_cluster);
+	/* assign init grouping randomly */
+	//for_len p->group = j % n_cluster;
+
+	/* or call k++ init */
+	kpp(pts, len, cent, n_cluster);
+
+	do {
+		/* group element for centroids are used as counters */
+		for (c = cent, i = 0; i < n_cluster; i++, c++)
+		{
+			c->val = 0;
+		}
+		for (j = 0, p = pts; j < len; j++, p++){
+			c = cent + p->group;
+			c->group++;
+			c->val += p->val;
+		}
+		for (c = cent, i = 0; i < n_cluster; i++, c++){
+			if (c->group != 0)
+				c->val /= c->group;
+		}
+
+		changed = 0;
+		/* find closest centroid of each point */
+		for (j = 0, p = pts; j < len; j++, p++){
+			min_i = nearest(p, cent, n_cluster, 0);
+			if (min_i != p->group) {
+				changed++;
+				p->group = min_i;
+			}
+		}
+	} while (changed >(len >> 10)); /* stop when 99.9% of points are good */
+
+	for (c = cent, i = 0; i < n_cluster; i++, c++){
+		c->group = i;
+		ssd->k_mean_c[i] = c;
+	}
+		
+	cent = NULL;
+	free(cent);
+
+	return 1;
+}
+
+
+struct ssd_info *k_means(struct ssd_info *ssd){
+	struct phy_hit *ph = NULL;
+	int page_num = 0, len = 0;
+	int cnt = 0;
+	int mean = 2;
+	point pts;
+	int temp[10];
+
+	memset(ssd->k_mean_max, 0, sizeof(int) * 10);
+	memset(ssd->k_mean_c, 0, sizeof(point_t) * 10);
+
+	ph = ssd->dram->ph;
+	page_num = ssd->parameter->page_block*ssd->parameter->block_plane*ssd->parameter->plane_die*ssd->parameter->die_chip*ssd->parameter->chip_num;
+	for (int i = 0; i < page_num; i++){
+		if (ph->hit_count != 0){
+			len++;
+		}
+		ph++;
+	}
+	pts = (point)malloc(sizeof(point_t) * len);
+	memset(pts, 0, sizeof(point_t) * len);
+	ph = ssd->dram->ph;
+	for (int i = 0; i < page_num; i++){
+		if (ph->hit_count != 0){
+			pts[cnt].val = ph->hit_count;
+			cnt++;
+		}
+		ph++;
+	}
+
+	lloyd(ssd, pts, len, mean);
+
+	int val_max = -1;
+	for (int i = 0; i < mean; i++){
+		val_max = -1;
+		for (int j = 0; j < len; j++){
+			if (pts[j].group == i && pts[j].val > val_max)
+				val_max = pts[j].val;
+		}
+		temp[i] = val_max;
+	}
+	val_max = -1;
+	for (int i = 0; i < mean; i++){
+		if (temp[i] > val_max)
+			val_max = temp[i];
+	}
+	ssd->k_mean_max[0] = val_max;
+	free(pts);
+	pts = NULL; 
+
+	return ssd;
+		
 }

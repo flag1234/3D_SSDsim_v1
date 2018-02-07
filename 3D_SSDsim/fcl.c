@@ -322,6 +322,10 @@ Status services_2_r_complete(struct ssd_info * ssd)
 {
 	unsigned int i = 0;
 	struct sub_request * sub = NULL, *p = NULL;
+	__int64 ppn1 = 0, ppn2 = 0;
+	struct phy_hit *ph = NULL;
+	struct sub_request *sub1 = NULL, *sub2 = NULL;
+	__int64 chann = 0, chi = 0, di = 0, plan = 0, bloc = 0, pag = 0;
 	
 	for (i = 0; i<ssd->parameter->channel_number; i++)                                       /*This loop does not require the channel time, when the read request is completed, it will be removed from the channel queue*/
 	{
@@ -329,13 +333,72 @@ Status services_2_r_complete(struct ssd_info * ssd)
 		p = NULL;
 		while (sub != NULL)
 		{
-			//if (sub->lpn == 129585 || sub->lpn == 129586)
-				//printf("1\n");
+			
 			if ((sub->current_state == SR_COMPLETE) || ((sub->next_state == SR_COMPLETE) && (sub->next_state_predict_time <= ssd->current_time)))
 			{
-				
-				if(ssd->parameter->read_buffer == 1)
+				ssd->dram->ph[sub->ppn].hit_count++;
+
+				if (ssd->parameter->read_buffer == 1){
 					insert2readbuffer(ssd, sub);
+					
+					//看是否要加入额外的
+					ph = ssd->dram->ph;
+					if (sub->ppn % 3 == 0){
+						ppn1 = sub->ppn + 1;
+						ppn2 = sub->ppn + 2;
+					}
+					else if (sub->ppn % 3 == 1){
+						ppn1 = sub->ppn - 1;
+						ppn2 = sub->ppn + 1;
+					}
+					else{
+						ppn1 = sub->ppn - 2;
+						ppn2 = sub->ppn - 1;
+					}
+					if (ph[ppn1].hit_count > ssd->k_mean_max[0]){
+						sub1 = (struct sub_request *)malloc(sizeof(struct sub_request));
+						pag = ppn1 % ssd->parameter->page_block;
+						ppn1 /= ssd->parameter->page_block;
+						bloc = ppn1 % ssd->parameter->block_plane;
+						ppn1 /= ssd->parameter->block_plane;
+						plan = ppn1 % ssd->parameter->plane_die;
+						ppn1 /= ssd->parameter->plane_die;
+						di = ppn1 % ssd->parameter->die_chip;
+						ppn1 /= ssd->parameter->die_chip;
+						chi = ppn1 % (ssd->parameter->chip_num / ssd->parameter->channel_number);
+						ppn1 /= (ssd->parameter->chip_num / ssd->parameter->channel_number);
+						chann = ppn1 % ssd->parameter->channel_number;
+						
+						sub1->lpn = ssd->channel_head[chann].chip_head[chi].die_head[di].plane_head[plan].blk_head[bloc].page_head[pag].lpn;
+						insert2readbuffer(ssd, sub1);
+						free(sub1);
+						sub1 = NULL;
+
+					}
+					if (ph[ppn2].hit_count > ssd->k_mean_max[0]){
+						sub2 = (struct sub_request *)malloc(sizeof(struct sub_request));
+						pag = ppn2 % ssd->parameter->page_block;
+						ppn2 /= ssd->parameter->page_block;
+						bloc = ppn2 % ssd->parameter->block_plane;
+						ppn2 /= ssd->parameter->block_plane;
+						plan = ppn2 % ssd->parameter->plane_die;
+						ppn2 /= ssd->parameter->plane_die;
+						di = ppn2 % ssd->parameter->die_chip;
+						ppn2 /= ssd->parameter->die_chip;
+						chi = ppn2 % (ssd->parameter->chip_num / ssd->parameter->channel_number);
+						ppn2 /= (ssd->parameter->chip_num / ssd->parameter->channel_number);
+						chann = ppn2 % ssd->parameter->channel_number;
+
+						sub2->lpn = ssd->channel_head[chann].chip_head[chi].die_head[di].plane_head[plan].blk_head[bloc].page_head[pag].lpn;
+						insert2readbuffer(ssd, sub2);
+						free(sub2);
+						sub2 = NULL;
+
+					}
+
+
+				}
+					
 				if (sub != ssd->channel_head[i].subs_r_head)                         
 				{
 					if (sub == ssd->channel_head[i].subs_r_tail)
